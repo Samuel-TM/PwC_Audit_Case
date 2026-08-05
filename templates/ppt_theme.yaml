@@ -1,0 +1,17 @@
+name: Codex Grid - A 公司模拟审计
+slide_size: 16:9
+font: Microsoft YaHei
+colors:
+  canvas: "#FFFFFF"
+  ink: "#101820"
+  panel: "#EDEFF1"
+  rule: "#B8C1C9"
+  accent: "#3D8DFF"
+  accent_light: "#6DCBF4"
+  navy: "#153A5B"
+principles:
+  - 每页一个结论型标题
+  - 白底、细线、低装饰、高信息可读性
+  - 风险与已确认问题严格区分
+  - 图表直接对应页面结论
+

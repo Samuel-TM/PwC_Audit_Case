@@ -1,0 +1,7 @@
+pandas>=2.2
+matplotlib>=3.9
+PyYAML>=6.0
+pydantic>=2.8
+pytest>=8.0
+PyMuPDF>=1.24
+

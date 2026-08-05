@@ -1,0 +1,10 @@
+[project]
+name = "pwc-audit-case"
+version = "1.0.0"
+description = "A 公司模拟财务报表审计案例"
+requires-python = ">=3.11"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+

@@ -1,0 +1,18 @@
+company: A 公司
+status: 上市公司
+industry: 精密金属滑轨制造
+business: 滑轨研发、生产与销售
+applications: [家电, 服务器]
+products: [家电滑轨, 服务器滑轨, 其他滑轨, 钣金件]
+key_raw_materials: [板材, 塑料组件, 五金件, 包装材料, 其他辅材]
+markets:
+  domestic: 中国
+  export: [德国, 土耳其, 泰国, 意大利, 墨西哥, 匈牙利]
+departments: [董事长办公室, 董事会办公室, 监事会办公室, 销售部, 研发部, 采购部, 财务部, 生产部, 人力资源部]
+finance_team:
+  财务总监: 1
+  财务经理: 1
+  会计: 2
+  出纳: 1
+source: 1-2 Assignment for PwC You Plus.pdf，第 1 页
+

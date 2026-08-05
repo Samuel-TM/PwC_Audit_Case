@@ -1,0 +1,28 @@
+# macOS and editor files
+.DS_Store
+.vscode/
+.idea/
+
+# Python environments, caches, and test artifacts
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# Third-party, temporary, and generated project files
+tmp/
+vendor/
+assets/
+output/
+source/
+node_modules/
+
+# Local secrets and configuration overrides
+.env
+.env.*
+!.env.example
