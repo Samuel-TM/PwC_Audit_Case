@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
-from src.config import OUTPUT_DIR, REPORT_TEX, ROOT
+from src.config import OUTPUT_DIR, REPORT_OUTPUT_STEM, REPORT_TEX, ROOT
 
 
 def export_pdf() -> Path:
@@ -33,9 +33,9 @@ def export_pdf() -> Path:
     if not built_pdf.exists():
         raise RuntimeError("XeLaTeX did not create PDF")
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(built_pdf, OUTPUT_DIR / "A公司审计案例汇报.pdf")
-    shutil.copy2(REPORT_TEX, OUTPUT_DIR / "A公司审计案例汇报.tex")
-    pdf = OUTPUT_DIR / "A公司审计案例汇报.pdf"
+    shutil.copy2(built_pdf, OUTPUT_DIR / f"{REPORT_OUTPUT_STEM}.pdf")
+    shutil.copy2(REPORT_TEX, OUTPUT_DIR / f"{REPORT_OUTPUT_STEM}.tex")
+    pdf = OUTPUT_DIR / f"{REPORT_OUTPUT_STEM}.pdf"
     return pdf
 
 

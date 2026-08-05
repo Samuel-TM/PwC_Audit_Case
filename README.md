@@ -1,6 +1,6 @@
 # A 公司模拟财务报表审计案例
 
-本项目依据 `Plan.md` 与案例 PDF，完成 A 公司 2020—2022 年财务分析、风险评估、审计资料清单、四周审计计划、导师问答及 15 页 LaTeX 汇报 PDF。
+本项目依据案例 PDF 与 Version 3 优化要求，完成 A 公司 2020—2022 年财务分析、风险评估、审计资料清单、四周审计计划、导师问答及 15 页 LaTeX 汇报 PDF。最终汇报只使用 Beamer + XeLaTeX，不生成或维护 PPTX。
 
 ## 一键构建
 
@@ -15,19 +15,23 @@ python -m pytest -q
 
 ## 主要输出
 
-- `A公司审计案例汇报.tex`
-- `A公司审计案例汇报.pdf`
-- `审计资料清单.xlsx`
-- `审计计划.xlsx`
-- `导师问答手册.md`
-- `analysis_summary.md`
-- `charts/` 九张 1600×900 图表
-- `build_report.txt`
+- `A公司审计案例汇报_V3.tex`
+- `A公司审计案例汇报_V3.pdf`
+- `审计资料清单_V3.xlsx`
+- `审计计划_V3.xlsx`
+- `导师问答手册_V3.md`
+- `analysis_summary_V3.md`
+- `charts_V3/` 九张 1600×900 图表
+- `build_report_V3.txt`
+- `validation_report_V3.json`
+- `audit_risk_results_V3.json`
+- `workbook_verification_V3.json`
+- `pdf_verification_V3.json`
 
 ## 数据口径
 
 - 数据来源：`source/1-2 Assignment for PwC You Plus.pdf`
-- 汇报版式参考：`source/` 下公开 PwC 材料的配色、留白与几何语言；原 `.pptx` 仅作内容参考且不会被修改
+- 汇报版式：16:9 Beamer，统一字号宏与橙红灰视觉体系
 - 报告期间：2020—2022 年
 - 金额单位：万元（原材料单价和产品单位价格按源表注明单位）
 - 合计与比例校验容差：0.02 万元或 0.02 个百分点

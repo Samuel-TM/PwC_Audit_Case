@@ -6,6 +6,7 @@ from .loaders import load_yaml
 
 @dataclass(frozen=True)
 class RiskResult:
+    risk_id: str
     area: str
     average_score: float
     level: str
@@ -31,6 +32,7 @@ def evaluate_risks() -> list[RiskResult]:
         average = sum(item["scores"].values()) / len(item["scores"])
         results.append(
             RiskResult(
+                risk_id=item["risk_id"],
                 area=item["area"],
                 average_score=round(average, 2),
                 level=risk_level(average),
@@ -40,4 +42,3 @@ def evaluate_risks() -> list[RiskResult]:
             )
         )
     return results
-

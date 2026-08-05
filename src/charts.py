@@ -23,9 +23,13 @@ def _setup() -> None:
         plt.rcParams["font.family"] = ["Noto Sans SC Thin", "DejaVu Sans"]
     plt.rcParams.update({
         "axes.unicode_minus": False,
-        "font.size": 17,
-        "axes.titlesize": 26,
+        "font.size": 25,
+        "axes.titlesize": 34,
         "axes.titleweight": "bold",
+        "axes.labelsize": 25,
+        "xtick.labelsize": 23,
+        "ytick.labelsize": 23,
+        "legend.fontsize": 23,
         "axes.labelcolor": INK,
         "text.color": INK,
         "xtick.color": "#444444",
@@ -38,7 +42,7 @@ def _setup() -> None:
 
 def _save(fig: plt.Figure, name: str) -> None:
     fig.set_size_inches(16, 9)
-    fig.tight_layout(pad=2.2)
+    fig.tight_layout(pad=1.0)
     fig.savefig(CHART_DIR / name, dpi=100, facecolor="white")
     plt.close(fig)
 
@@ -67,8 +71,8 @@ def generate_charts() -> list[Path]:
     ax.set_xticks(x, years)
     ax.set_ylabel("万元")
     ax.legend(frameon=False, ncols=2, loc="upper left")
-    for idx, value in enumerate(revenue): ax.text(idx - 0.18, value + 500, f"{value:,.0f}", ha="center", fontsize=14)
-    for idx, value in enumerate(profit): ax.text(idx + 0.18, value + 500, f"{value:,.0f}", ha="center", fontsize=14)
+    for idx, value in enumerate(revenue): ax.text(idx - 0.18, value + 500, f"{value:,.0f}", ha="center", fontsize=23)
+    for idx, value in enumerate(profit): ax.text(idx + 0.18, value + 500, f"{value:,.0f}", ha="center", fontsize=23)
     _clean(ax)
     _save(fig, "01_revenue_net_profit.png")
 
@@ -82,7 +86,7 @@ def generate_charts() -> list[Path]:
     ax.set_xticks(years)
     ax.legend(frameon=False, ncols=2, loc="upper left")
     for series in [ar, inv]:
-        for y, value in zip(years, series): ax.text(y, value + 280, f"{value:,.0f}", ha="center", fontsize=14)
+        for y, value in zip(years, series): ax.text(y, value + 280, f"{value:,.0f}", ha="center", fontsize=23)
     _clean(ax)
     _save(fig, "02_receivables_inventory.png")
 
@@ -94,7 +98,7 @@ def generate_charts() -> list[Path]:
     ax.set_title("主营业务毛利率连续下降至 21.38%")
     ax.set_ylabel("毛利率（%）")
     ax.set_xticks(years)
-    for y, value in zip(years, vals): ax.text(y, value + 0.25, f"{value:.2f}%", ha="center", fontsize=16, fontweight="bold")
+    for y, value in zip(years, vals): ax.text(y, value + 0.25, f"{value:.2f}%", ha="center", fontsize=25, fontweight="bold")
     _clean(ax)
     _save(fig, "03_main_gross_margin.png")
 
@@ -109,7 +113,7 @@ def generate_charts() -> list[Path]:
     ax.set_xticks(years)
     ax.legend(frameon=False, ncols=2, loc="upper right")
     for series in [appliance, server]:
-        for y, value in zip(years, series): ax.text(y, value + 0.5, f"{value:.2f}%", ha="center", fontsize=14)
+        for y, value in zip(years, series): ax.text(y, value + 0.5, f"{value:.2f}%", ha="center", fontsize=23)
     _clean(ax)
     _save(fig, "04_product_gross_margin.png")
 
@@ -121,47 +125,66 @@ def generate_charts() -> list[Path]:
     ax.set_title("外销占比三年提升至 23.61%")
     ax.set_ylabel("外销占比（%）")
     ax.set_xticks(years)
-    for bar, value in zip(bars, export): ax.text(bar.get_x() + bar.get_width()/2, value + 0.7, f"{value:.2f}%", ha="center", fontsize=16, fontweight="bold")
+    for bar, value in zip(bars, export): ax.text(bar.get_x() + bar.get_width()/2, value + 0.7, f"{value:.2f}%", ha="center", fontsize=25, fontweight="bold")
     _clean(ax)
     _save(fig, "05_export_share.png")
 
-    quarter = load_csv("revenue_by_quarter.csv")
-    quarter = quarter[quarter.quarter != "合计"].set_index("quarter")
+    # 应收页面只保留净额及其占收入比例，避免重复展示存货趋势。
     fig, ax = plt.subplots()
-    bottom = np.zeros(3)
-    colors = ["#D0EDFA", "#9DDAF5", "#6DCBF4", "#3D8DFF"]
-    for q, color in zip(quarter.index, colors):
-        vals = np.array([float(quarter.loc[q, f"{y}_pct"]) * 100 for y in years])
-        ax.bar(years, vals, bottom=bottom, label=q, color=color, width=0.6)
-        for xval, btm, val in zip(years, bottom, vals):
-            if val >= 8: ax.text(xval, btm + val/2, f"{val:.1f}%", ha="center", va="center", fontsize=13)
-        bottom += vals
-    ax.set_title("季度收入结构变化，2022 年第四季度占比回落")
-    ax.set_ylabel("主营业务收入占比（%）")
+    ar_ratio = np.array(ar) / np.array(revenue) * 100
+    bars = ax.bar(years, ar, color=[PALE, LIGHT_BLUE, BLUE], width=0.58)
+    ax.set_ylim(0, max(ar) * 1.22)
+    ax.set_title("应收账款净额维持高位，2022 年占收入 34.35%")
+    ax.set_ylabel("应收账款净额（万元）")
     ax.set_xticks(years)
-    ax.legend(frameon=False, ncols=4, loc="upper center", bbox_to_anchor=(0.5, 1.01))
-    ax.spines[["top", "right", "left"]].set_visible(False)
-    _save(fig, "06_quarterly_revenue_structure.png")
+    for bar, value, share in zip(bars, ar, ar_ratio):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            value + max(ar) * 0.035,
+            f"{value:,.0f}\n{share:.2f}% / 收入",
+            ha="center",
+            fontsize=23,
+            fontweight="bold",
+        )
+    _clean(ax)
+    _save(fig, "06_receivables_net_ratio.png")
 
-    cost = load_csv("cost_structure.csv")
-    cost = cost[cost.item != "合计"]
+    # 存货页面改用 2022 年存货构成及跌价准备，不再使用成本结构饼图。
+    inventory = load_csv("inventory.csv")
+    inventory = inventory[(inventory.year == 2022) & (inventory.item != "合计")].copy()
+    inventory["allowance"] = inventory["allowance"].fillna(0.0)
+    major = inventory[inventory.item.isin(["原材料", "在产品", "库存商品"])].copy()
+    other = inventory[~inventory.item.isin(["原材料", "在产品", "库存商品"])][["gross", "allowance", "net"]].sum()
+    labels = major.item.tolist() + ["其他"]
+    net_values = major.net.astype(float).tolist() + [float(other["net"])]
+    allowance_values = major.allowance.astype(float).tolist() + [float(other["allowance"])]
     fig, ax = plt.subplots()
-    values = cost["2022_pct"].astype(float).values * 100
-    labels = cost.item.tolist()
-    ax.pie(values, labels=labels, autopct="%1.1f%%", startangle=90, colors=[BLUE, LIGHT_BLUE, PALE], textprops={"fontsize": 17}, wedgeprops={"linewidth": 2, "edgecolor": "white"})
-    ax.set_title("2022 年主营业务成本中直接材料占 58.50%")
-    _save(fig, "07_cost_structure_2022.png")
+    positions = np.arange(len(labels))
+    ax.barh(positions, net_values, color=BLUE, label="账面价值")
+    ax.barh(positions, allowance_values, left=net_values, color=LIGHT_BLUE, label="跌价准备")
+    ax.set_yticks(positions, labels)
+    ax.set_xlabel("万元")
+    ax.set_title("2022 年存货构成：库存商品与原材料占主体")
+    ax.legend(frameon=False, ncols=2, loc="lower right")
+    for position, value in zip(positions, net_values):
+        ax.text(value + 35, position, f"{value:,.0f}", va="center", fontsize=23, fontweight="bold")
+    ax.invert_yaxis()
+    ax.spines[["top", "right", "left"]].set_visible(False)
+    ax.grid(axis="x", color="#E8EAED", linewidth=1)
+    ax.set_axisbelow(True)
+    _save(fig, "07_inventory_composition_2022.png")
 
     risks = evaluate_risks()
     dims = ["金额重大性", "同比波动", "管理层判断程度", "舞弊可能性", "交易复杂度", "证据获取难度"]
+    short_dims = ["金额", "波动", "判断", "舞弊", "复杂", "取证"]
     matrix = np.array([[risk.scores[d] for d in dims] for risk in risks])
     fig, ax = plt.subplots()
     image = ax.imshow(matrix, cmap="Blues", vmin=1, vmax=5, aspect="auto")
     ax.set_title("收入、应收和存货的综合风险评分最高")
-    ax.set_xticks(range(len(dims)), dims, rotation=15, ha="right")
+    ax.set_xticks(range(len(short_dims)), short_dims)
     ax.set_yticks(range(len(risks)), [r.area for r in risks])
     for row in range(matrix.shape[0]):
-        for col in range(matrix.shape[1]): ax.text(col, row, str(matrix[row, col]), ha="center", va="center", color="white" if matrix[row, col] >= 4 else INK, fontweight="bold")
+        for col in range(matrix.shape[1]): ax.text(col, row, str(matrix[row, col]), ha="center", va="center", color="white" if matrix[row, col] >= 4 else INK, fontsize=23, fontweight="bold")
     fig.colorbar(image, ax=ax, shrink=0.75, label="风险评分（1-5）")
     _save(fig, "08_audit_risk_heatmap.png")
 
@@ -169,7 +192,7 @@ def generate_charts() -> list[Path]:
     phases = [("计划与风险评估", 0, 5, BLUE), ("控制了解与初测", 5, 5, LIGHT_BLUE), ("实质性审计程序", 10, 5, BLUE), ("收尾与汇报", 15, 5, LIGHT_BLUE)]
     for idx, (name, start, duration, color) in enumerate(phases):
         ax.barh(idx, duration, left=start, color=color, height=0.55)
-        ax.text(start + duration/2, idx, name, ha="center", va="center", color="white" if color == BLUE else INK, fontweight="bold")
+        ax.text(start + duration/2, idx, name, ha="center", va="center", color="white" if color == BLUE else INK, fontsize=22, fontweight="bold")
     ax.set_yticks(range(4), ["第1周", "第2周", "第3周", "第4周"])
     ax.set_xticks([0, 5, 10, 15, 20], ["启动", "W1结束", "W2结束", "W3结束", "项目结束"])
     ax.set_title("四周审计计划：先锁定证据，再集中实施实质性程序")
