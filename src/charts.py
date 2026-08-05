@@ -1,5 +1,7 @@
 from pathlib import Path
+from datetime import date
 
+import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib import font_manager
@@ -174,28 +176,65 @@ def generate_charts() -> list[Path]:
     ax.set_axisbelow(True)
     _save(fig, "07_inventory_composition_2022.png")
 
-    risks = evaluate_risks()
-    dims = ["金额重大性", "同比波动", "管理层判断程度", "舞弊可能性", "交易复杂度", "证据获取难度"]
-    short_dims = ["金额", "波动", "判断", "舞弊", "复杂", "取证"]
-    matrix = np.array([[risk.scores[d] for d in dims] for risk in risks])
+    # 投影版改为横向排序，避免六维热力图在整页缩放后文字过小。
+    risks = sorted(evaluate_risks(), key=lambda item: item.average_score)
+    level_colors = {"高": RED, "中高": "#EB8C00", "中": GRAY, "一般": "#D9DDE3"}
     fig, ax = plt.subplots()
-    image = ax.imshow(matrix, cmap="Blues", vmin=1, vmax=5, aspect="auto")
-    ax.set_title("收入、应收和存货的综合风险评分最高")
-    ax.set_xticks(range(len(short_dims)), short_dims)
-    ax.set_yticks(range(len(risks)), [r.area for r in risks])
-    for row in range(matrix.shape[0]):
-        for col in range(matrix.shape[1]): ax.text(col, row, str(matrix[row, col]), ha="center", va="center", color="white" if matrix[row, col] >= 4 else INK, fontsize=23, fontweight="bold")
-    fig.colorbar(image, ax=ax, shrink=0.75, label="风险评分（1-5）")
-    _save(fig, "08_audit_risk_heatmap.png")
+    positions = np.arange(len(risks))
+    bars = ax.barh(
+        positions,
+        [risk.average_score for risk in risks],
+        color=[level_colors[risk.level] for risk in risks],
+        height=0.62,
+    )
+    ax.set_yticks(positions, [risk.area for risk in risks])
+    ax.set_xlim(0, 5.25)
+    ax.set_xlabel("六维平均分（1-5）")
+    ax.set_title("计划阶段风险排序：收入、应收与存货投入最多资源")
+    for bar, risk in zip(bars, risks):
+        ax.text(
+            risk.average_score + 0.08,
+            bar.get_y() + bar.get_height() / 2,
+            f"{risk.average_score:.2f}｜{risk.level}",
+            va="center",
+            fontsize=23,
+            fontweight="bold",
+        )
+    ax.spines[["top", "right", "left"]].set_visible(False)
+    ax.grid(axis="x", color="#E8EAED", linewidth=1)
+    ax.set_axisbelow(True)
+    _save(fig, "08_audit_risk_ranking.png")
 
     fig, ax = plt.subplots()
-    phases = [("计划与风险评估", 0, 5, BLUE), ("控制了解与初测", 5, 5, LIGHT_BLUE), ("实质性审计程序", 10, 5, BLUE), ("收尾与汇报", 15, 5, LIGHT_BLUE)]
-    for idx, (name, start, duration, color) in enumerate(phases):
-        ax.barh(idx, duration, left=start, color=color, height=0.55)
-        ax.text(start + duration/2, idx, name, ha="center", va="center", color="white" if color == BLUE else INK, fontsize=22, fontweight="bold")
-    ax.set_yticks(range(4), ["第1周", "第2周", "第3周", "第4周"])
-    ax.set_xticks([0, 5, 10, 15, 20], ["启动", "W1结束", "W2结束", "W3结束", "项目结束"])
-    ax.set_title("四周审计计划：先锁定证据，再集中实施实质性程序")
+    tasks = [
+        ("盘点安排确认", date(2022, 12, 27), date(2022, 12, 30), BLUE),
+        ("函证核验与首次发出", date(2023, 1, 3), date(2023, 1, 6), LIGHT_BLUE),
+        ("流程穿行与分析", date(2023, 1, 9), date(2023, 1, 13), "#89CFF0"),
+        ("高风险实质性程序", date(2023, 1, 16), date(2023, 1, 24), BLUE),
+        ("未决事项清理", date(2023, 1, 23), date(2023, 1, 26), "#EB8C00"),
+        ("项目经理及合伙人复核", date(2023, 1, 25), date(2023, 1, 27), RED),
+    ]
+    for idx, (name, start, finish, color) in enumerate(tasks):
+        start_num = mdates.date2num(start)
+        finish_num = mdates.date2num(finish)
+        ax.barh(idx, finish_num - start_num + 1, left=start_num, color=color, height=0.56)
+        ax.text(
+            start_num + (finish_num - start_num + 1) / 2,
+            idx,
+            name,
+            ha="center",
+            va="center",
+            color="white" if color in {BLUE, RED} else INK,
+            fontsize=21,
+            fontweight="bold",
+        )
+        ax.plot(finish_num, idx, marker="D", markersize=7, color=INK)
+    ax.set_yticks(range(len(tasks)), ["前置", "第1周", "第2周", "第3周", "第4周", "第4周"])
+    tick_dates = [date(2022, 12, 27), date(2023, 1, 3), date(2023, 1, 9), date(2023, 1, 16), date(2023, 1, 23), date(2023, 1, 27)]
+    ax.set_xticks([mdates.date2num(item) for item in tick_dates])
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%m/%d"))
+    ax.set_xlim(mdates.date2num(date(2022, 12, 26)), mdates.date2num(date(2023, 1, 29)))
+    ax.set_title("四周关键路径：外部程序前置，分析与实质性程序并行")
     ax.invert_yaxis()
     ax.spines[["top", "right", "left", "bottom"]].set_visible(False)
     ax.grid(axis="x", color="#E8EAED")

@@ -34,7 +34,6 @@ def export_pdf() -> Path:
         raise RuntimeError("XeLaTeX did not create PDF")
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     shutil.copy2(built_pdf, OUTPUT_DIR / f"{REPORT_OUTPUT_STEM}.pdf")
-    shutil.copy2(REPORT_TEX, OUTPUT_DIR / f"{REPORT_OUTPUT_STEM}.tex")
     pdf = OUTPUT_DIR / f"{REPORT_OUTPUT_STEM}.pdf"
     return pdf
 

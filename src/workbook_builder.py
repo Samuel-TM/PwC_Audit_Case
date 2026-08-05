@@ -1,13 +1,13 @@
 """可追溯的 Excel 产物生成器。
 
-保留现有模板中的已核对内容，只对第二轮优化要求做确定性增补。所有执行结果字段
+保留现有模板中的已核对内容，只对 Version 4 要求做确定性增补。所有执行结果字段
 保持“待执行/未提供”，不生成函证、盘点、错报或审计结论。
 """
 
 from __future__ import annotations
 
 import json
-from datetime import date
+from datetime import date, datetime
 from pathlib import Path
 
 from openpyxl import Workbook, load_workbook
@@ -38,6 +38,71 @@ LINE = "D9D9D9"
 GREEN = "DDEBF7"
 WHITE = "FFFFFF"
 THIN = Side(style="thin", color=LINE)
+
+
+# 高优先级只保留首周必须取得、会阻塞风险评估或不可逆外部程序的资料。
+HIGH_PRIORITY_ITEMS = {
+    "关联方及关联交易清单", "总账、明细账、科目余额表", "试算平衡表及财务报表", "银行账户清单",
+    "销售收入明细", "年末前后销售清单", "前十大客户分析",
+    "应收账款明细", "应收账款账龄表", "坏账准备计算表", "逾期款项清单", "期后回款", "函证联系人信息",
+    "存货明细", "仓库清单", "盘点计划", "库龄分析", "存货跌价准备计算表", "委托加工物资明细",
+    "年末前后入出库明细", "生产成本计算表",
+    "采购明细", "制造费用分配表", "单位成本计算表", "成本结转表",
+    "银行对账单", "银行余额调节表", "借款合同", "银行函证信息", "未来12个月资金预算",
+    "预付款项明细", "其他流动资产明细", "主要预付款合同与付款", "预付款期后到货结算",
+    "应付账款及采购负债明细", "供应商对账及函证信息", "年末前后采购入库清单",
+    "承诺及或有事项清单",
+}
+
+LOW_PRIORITY_ITEMS = {
+    "期后事项清单", "客户对账单", "销售价格表", "盘点表及差异表", "期后销售价格",
+    "政府补助资料", "长期待摊费用明细", "无形资产明细", "员工花名册与薪酬汇总",
+    "费用合同与抽样支持资料", "财务报表附注及披露清单", "关联方披露勾稽表", "报表列报完整性核对表",
+}
+
+EXTERNAL_PROCEDURE_ITEMS = {
+    "银行账户清单", "函证联系人信息", "仓库清单", "盘点计划", "委托加工物资明细",
+    "银行函证信息", "供应商对账及函证信息",
+}
+
+FOUNDATION_ITEMS = {
+    "关联方及关联交易清单", "总账、明细账、科目余额表", "试算平衡表及财务报表",
+}
+
+
+def _priority_and_reason(material_name: str) -> tuple[str, str]:
+    if material_name in HIGH_PRIORITY_ITEMS:
+        if material_name in EXTERNAL_PROCEDURE_ITEMS:
+            return "高", "首周取得：用于函证、盘点等不可逆外部程序的范围或地址核验"
+        if material_name in FOUNDATION_ITEMS:
+            return "高", "首周取得：影响整体风险评估、报表勾稽和后续选样"
+        return "高", "首周取得：构成重点项目完整总体、关键估计或截止测试基础"
+    if material_name in LOW_PRIORITY_ITEMS:
+        return "低", "收尾或定向补充：用于披露、补充验证或执行结果形成后的跟进"
+    return "中", "实质性程序前取得：用于流程了解、样本支持或一般报表项目测试"
+
+
+def _apply_checklist_priority_policy(wb: Workbook) -> dict[str, int]:
+    counts = {"高": 0, "中": 0, "低": 0}
+    for ws in wb.worksheets:
+        if ws.title == "总览":
+            continue
+        ws["L1"] = "优先级依据/备注"
+        for row in range(2, ws.max_row + 1):
+            material_name = str(ws.cell(row, 3).value or "")
+            priority, reason = _priority_and_reason(material_name)
+            ws.cell(row, 8, priority)
+            ws.cell(row, 12, reason)
+            planned = ws.cell(row, 9).value
+            planned_date = planned.date() if isinstance(planned, datetime) else planned
+            if priority == "高" and (not isinstance(planned_date, date) or planned_date > date(2023, 1, 6)):
+                ws.cell(row, 9, date(2023, 1, 6))
+            elif priority == "低" and (not isinstance(planned_date, date) or planned_date < date(2023, 1, 20)):
+                ws.cell(row, 9, date(2023, 1, 20))
+            ws.cell(row, 9).number_format = "yyyy-mm-dd"
+            counts[priority] += 1
+        _set_widths(ws, [8, 18, 30, 44, 16, 16, 20, 10, 16, 16, 12, 38])
+    return counts
 
 
 def _style_header(ws, row: int, start: int, end: int) -> None:
@@ -119,26 +184,26 @@ def _build_checklist_overview(wb: Workbook) -> None:
         del wb["总览"]
     ws = wb.create_sheet("总览", 0)
     ws.sheet_view.showGridLines = False
-    ws.merge_cells("A1:H1")
+    ws.merge_cells("A1:J1")
     ws["A1"] = "A 公司 2022 年度审计资料清单"
     ws["A1"].fill = PatternFill("solid", fgColor=INK)
     ws["A1"].font = Font(size=18, bold=True, color=WHITE)
     ws["A1"].alignment = Alignment(vertical="center")
     ws.row_dimensions[1].height = 36
-    ws.merge_cells("A2:H2")
+    ws.merge_cells("A2:J2")
     ws["A2"] = "模拟审计项目｜未列为高风险的重大报表项目仍执行基础程序｜状态与日期均为可编辑字段"
     ws["A2"].fill = PatternFill("solid", fgColor=PALE)
     ws["A2"].font = Font(color=MUTED, italic=True)
     ws["A2"].alignment = Alignment(vertical="center", wrap_text=True)
     ws.row_dimensions[2].height = 28
     # 资料清单沿用同一模拟状态日，避免历史计划被 TODAY() 误标为逾期。
-    ws["J1"] = "项目参数"
-    ws["J2"] = "项目模式"; ws["K2"] = "计划"
-    ws["J3"] = "项目状态日"; ws["K3"] = date(2023, 1, 10)
-    ws["K3"].number_format = "yyyy-mm-dd"
-    ws.column_dimensions["J"].hidden = True
-    ws.column_dimensions["K"].hidden = True
-    headers = ["模块", "资料总数", "高优先级", "已提供", "待补充", "未提供", "完成率", "负责人提示"]
+    ws["L1"] = "项目参数"
+    ws["L2"] = "项目模式"; ws["M2"] = "计划"
+    ws["L3"] = "项目状态日"; ws["M3"] = date(2023, 1, 10)
+    ws["M3"].number_format = "yyyy-mm-dd"
+    ws.column_dimensions["L"].hidden = True
+    ws.column_dimensions["M"].hidden = True
+    headers = ["模块", "资料总数", "高优先级", "中优先级", "低优先级", "已提供", "待补充", "未提供", "完成率", "负责人提示"]
     ws.append([])
     ws.append(headers)
     modules = [name for name in wb.sheetnames if name != "总览"]
@@ -146,25 +211,26 @@ def _build_checklist_overview(wb: Workbook) -> None:
         last = wb[name].max_row
         ws.append([
             name, f"=COUNTA('{name}'!$A$2:$A${last})", f'=COUNTIF(\'{name}\'!$H$2:$H${last},"高")',
+            f'=COUNTIF(\'{name}\'!$H$2:$H${last},"中")', f'=COUNTIF(\'{name}\'!$H$2:$H${last},"低")',
             f'=COUNTIF(\'{name}\'!$K$2:$K${last},"已提供")', f'=COUNTIF(\'{name}\'!$K$2:$K${last},"待补充")',
-            f'=COUNTIF(\'{name}\'!$K$2:$K${last},"未提供")', f"=IF(B{index}=0,0,D{index}/B{index})", "对应模块负责人跟进",
+            f'=COUNTIF(\'{name}\'!$K$2:$K${last},"未提供")', f"=IF(B{index}=0,0,F{index}/B{index})", "对应模块负责人跟进",
         ])
     total_row = ws.max_row + 1
-    ws.append(["合计", f"=SUM(B6:B{total_row-1})", f"=SUM(C6:C{total_row-1})", f"=SUM(D6:D{total_row-1})", f"=SUM(E6:E{total_row-1})", f"=SUM(F6:F{total_row-1})", f"=IF(B{total_row}=0,0,D{total_row}/B{total_row})", "每日更新"])
-    _style_header(ws, 5, 1, 8)
-    _style_body(ws, 6, total_row, 1, 8)
+    ws.append(["合计", f"=SUM(B6:B{total_row-1})", f"=SUM(C6:C{total_row-1})", f"=SUM(D6:D{total_row-1})", f"=SUM(E6:E{total_row-1})", f"=SUM(F6:F{total_row-1})", f"=SUM(G6:G{total_row-1})", f"=SUM(H6:H{total_row-1})", f"=IF(B{total_row}=0,0,F{total_row}/B{total_row})", "每日更新"])
+    _style_header(ws, 5, 1, 10)
+    _style_body(ws, 6, total_row, 1, 10)
     for c in ws[total_row]:
         c.fill = PatternFill("solid", fgColor=PALE)
         c.font = Font(bold=True, color=INK)
     for row in range(6, total_row + 1):
-        ws.cell(row, 7).number_format = "0.0%"
+        ws.cell(row, 9).number_format = "0.0%"
     ws.conditional_formatting.add(
-        f"G6:G{total_row}",
+        f"I6:I{total_row}",
         DataBarRule(start_type="num", start_value=0, end_type="num", end_value=1, color=ORANGE),
     )
-    _set_widths(ws, [20, 12, 12, 12, 12, 12, 12, 26])
+    _set_widths(ws, [20, 12, 12, 12, 12, 12, 12, 12, 12, 26])
     ws.freeze_panes = "A6"
-    _replace_table(ws, "ChecklistOverview", f"A5:H{total_row}")
+    _replace_table(ws, "ChecklistOverview", f"A5:J{total_row}")
 
 
 def _normalize_checklist_overdue_rule(ws) -> None:
@@ -184,7 +250,7 @@ def _normalize_checklist_overdue_rule(ws) -> None:
     conditional_formatting.add(
         f"A2:L{ws.max_row}",
         FormulaRule(
-            formula=['AND(\'总览\'!$K$2="执行",$K2<>"已提供",$I2<\'总览\'!$K$3)'],
+            formula=['AND(\'总览\'!$M$2="执行",$K2<>"已提供",$I2<\'总览\'!$M$3)'],
             fill=PatternFill("solid", fgColor="FDE9E7"),
         ),
     )
@@ -216,6 +282,7 @@ def build_checklist_workbook() -> dict[str, object]:
         ws.conditional_formatting.add(f"K2:K{ws.max_row}", FormulaRule(formula=['$K2="已提供"'], fill=PatternFill("solid", fgColor="E2F0D9")))
         ws.conditional_formatting.add(f"K2:K{ws.max_row}", FormulaRule(formula=['$K2="待补充"'], fill=PatternFill("solid", fgColor="FFF2CC")))
         _replace_table(ws, f"Checklist_{len(wb.sheetnames)}", f"A1:L{ws.max_row}")
+    priority_counts = _apply_checklist_priority_policy(wb)
     _build_checklist_overview(wb)
     for ws in wb.worksheets:
         if ws.title != "总览":
@@ -230,6 +297,8 @@ def build_checklist_workbook() -> dict[str, object]:
         "sheet_count": len(wb.sheetnames),
         "new_modules": {name: len(items) for name, items in NEW_CHECKLIST_MODULES.items()},
         "total_requests": sum(wb[name].max_row - 1 for name in wb.sheetnames if name != "总览"),
+        "priority_counts": priority_counts,
+        "high_priority_ratio": priority_counts["高"] / sum(priority_counts.values()),
     }
     return result
 
@@ -244,7 +313,7 @@ ADDITIONAL_PROCEDURES = [
     ("EXP-01", "期间费用", "一般", "费用可能跨期、分类错误或缺少商业实质", "发生；完整性；截止；分类", "趋势分析；大额异常及期末样本抽查；检查合同发票审批付款及受益期", "审计员B", "高级审计员B", "2023-01-16", "2023-01-20", "费用全量明细"),
     ("IA-01", "无形资产", "一般", "权属、摊销年限及减值判断可能不恰当", "权利和义务；计价；列报", "检查权属和取得资料；重算摊销；评价使用寿命及减值迹象", "审计员A", "项目经理", "2023-01-18", "2023-01-20", "无形资产明细"),
     ("CF-01", "现金流量表", "一般", "现金流分类和补充资料勾稽可能不准确", "准确性；分类；列报", "复核编制底稿；与总账及报表勾稽；抽查重大非现金及分类事项", "审计员B", "项目经理", "2023-01-20", "2023-01-24", "现金流量表底稿"),
-    ("DISC-01", "附注与或有事项", "一般", "披露可能不完整或与主表不一致", "完整性；列报", "使用披露清单；勾稽主表附注；检查承诺、诉讼、担保、关联方和期后事项", "项目经理", "项目合伙人/质量复核人", "2023-01-20", "2023-01-25", "附注及法务资料"),
+    ("DISC-01", "附注与或有事项", "一般", "披露可能不完整或与主表不一致", "完整性；列报", "使用披露清单；勾稽主表附注；检查承诺、诉讼、担保、关联方和期后事项", "项目经理", "项目合伙人", "2023-01-20", "2023-01-25", "附注及法务资料"),
 ]
 
 
@@ -269,15 +338,15 @@ def _add_materiality_sheet(wb: Workbook) -> None:
     ws.sheet_view.showGridLines = False
     ws.append(["重要性与抽样决策模板", "内容/公式", "责任人", "复核人", "状态/说明"])
     rows = [
-        ("重要性基准", "待项目经理在税前利润、营业收入或总资产中判断", "项目经理", "项目合伙人/质量复核人", "不得根据案例自行编造"),
-        ("基准金额", "待取得经核对的试算平衡表后填写", "项目经理", "项目合伙人/质量复核人", "待确定"),
-        ("选用比例", "待结合使用者、波动和基准稳定性判断", "项目经理", "项目合伙人/质量复核人", "待确定"),
-        ("财务报表整体重要性", '=IF(AND(ISNUMBER(B3),ISNUMBER(B4)),B3*B4,"待项目经理确定")', "项目经理", "项目合伙人/质量复核人", "公式计算"),
-        ("实际执行重要性", '=IF(AND(ISNUMBER(B5),ISNUMBER(B7)),B5*B7,"待项目经理确定")', "项目经理", "项目合伙人/质量复核人", "比例在 B7 填写"),
-        ("实际执行重要性比例", "待结合错报历史、控制风险和汇总风险判断", "项目经理", "项目合伙人/质量复核人", "待确定"),
-        ("明显微小错报临界值", '=IF(AND(ISNUMBER(B5),ISNUMBER(B9)),B5*B9,"待项目经理确定")', "项目经理", "项目合伙人/质量复核人", "比例在 B9 填写"),
-        ("明显微小错报比例", "待结合定性因素判断", "项目经理", "项目合伙人/质量复核人", "待确定"),
-        ("定性重要性因素", "关联方、管理层舞弊、监管事项、契约条款、敏感披露", "项目经理", "项目合伙人/质量复核人", "金额以下事项仍可能重大"),
+        ("重要性基准", "候选基准：税前利润、营业收入或总资产；正式选择待项目经理判断", "项目经理", "项目合伙人", "案例报表可作候选基准比较，正式选择待审批"),
+        ("基准金额", "待取得经核对的试算平衡表后填写", "项目经理", "项目合伙人", "待确定"),
+        ("选用比例", "待结合使用者、波动和基准稳定性判断", "项目经理", "项目合伙人", "待确定"),
+        ("财务报表整体重要性", '=IF(AND(ISNUMBER(B3),ISNUMBER(B4)),B3*B4,"待项目经理确定")', "项目经理", "项目合伙人", "公式计算"),
+        ("实际执行重要性", '=IF(AND(ISNUMBER(B5),ISNUMBER(B7)),B5*B7,"待项目经理确定")', "项目经理", "项目合伙人", "比例在 B7 填写"),
+        ("实际执行重要性比例", "待结合错报历史、控制风险和汇总风险判断", "项目经理", "项目合伙人", "待确定"),
+        ("明显微小错报临界值", '=IF(AND(ISNUMBER(B5),ISNUMBER(B9)),B5*B9,"待项目经理确定")', "项目经理", "项目合伙人", "比例在 B9 填写"),
+        ("明显微小错报比例", "待结合定性因素判断", "项目经理", "项目合伙人", "待确定"),
+        ("定性重要性因素", "关联方、管理层舞弊、监管事项、契约条款、敏感披露", "项目经理", "项目合伙人", "金额以下事项仍可能重大"),
     ]
     for row in rows:
         ws.append(row)
@@ -354,7 +423,7 @@ def _add_project_parameters(wb: Workbook) -> None:
     ws.append(["项目参数", "参数值", "说明"])
     ws.append(["项目模式", "计划", "计划模式不计算逾期；切换为执行后按项目状态日计算"])
     ws.append(["项目状态日", date(2023, 1, 10), "模拟项目进度截止日，不使用现实 TODAY()"])
-    ws.append(["汇报日期", date(2026, 8, 5), "Version 3 汇报日期"])
+    ws.append(["汇报日期", date(2026, 8, 5), "Version 4 汇报日期"])
     ws.append(["模拟审计开始日", date(2022, 12, 27), "盘点准备前置开始日"])
     ws.append(["模拟审计结束日", date(2023, 1, 27), "收尾与独立复核完成日"])
     _style_header(ws, 1, 1, 3); _style_body(ws, 2, 6, 1, 3)
@@ -378,7 +447,7 @@ def _add_dashboard(wb: Workbook, last_proc_row: int) -> None:
         ("程序总数", f"=COUNTA('审计程序'!$A$2:$A${last_proc_row})", "覆盖重点与一般报表项目", "高风险程序", f'=COUNTIF(\'审计程序\'!$I$2:$I${last_proc_row},"高")', "风险等级由风险登记表同步"),
         ("已完成任务", f'=COUNTIF(\'审计程序\'!$R$2:$R${last_proc_row},"已完成")', "仅执行后更新", "已完成待复核", f'=COUNTIFS(\'审计程序\'!$R$2:$R${last_proc_row},"已完成",\'审计程序\'!$Z$2:$Z${last_proc_row},"<>已复核")', "未开始任务不计入"),
         ("受阻任务", f'=COUNTIF(\'审计程序\'!$Y$2:$Y${last_proc_row},"<>")', "按阻塞原因非空统计", "逾期任务", f'=COUNTIF(\'审计程序\'!$X$2:$X${last_proc_row},">0")', "按项目状态日计算"),
-        ("资料完成率", "=IFERROR('[审计资料清单_V3.xlsx]总览'!$G$15,0)", "从资料清单总览合计行读取", "函证回函率", '=IFERROR(COUNT(\'函证跟踪\'!$H$2:$H$21)/COUNT(\'函证跟踪\'!$F$2:$F$21),0)', "分母仅为实际首次发出"),
+        ("资料完成率", f"=IFERROR('[{CHECKLIST_OUTPUT_NAME}]总览'!$I$15,0)", "从资料清单总览合计行读取", "函证回函率", '=IFERROR(COUNT(\'函证跟踪\'!$H$2:$H$21)/COUNT(\'函证跟踪\'!$F$2:$F$21),0)', "分母仅为实际首次发出"),
         ("盘点完成率", '=IFERROR(COUNTIF(\'盘点安排\'!$M$2:$M$13,"已完成")/COUNTIF(\'盘点安排\'!$B$2:$B$13,"<>"),0)', "分母仅为已安排地点", "自我复核冲突", f'=SUMPRODUCT(--(\'审计程序\'!$G$2:$G${last_proc_row}=\'审计程序\'!$H$2:$H${last_proc_row}))', "必须为 0"),
     ]
     for row in metrics:
@@ -406,13 +475,21 @@ def build_audit_plan_workbook() -> dict[str, object]:
     _style_body(timeline, 5, timeline.max_row, 1, 8)
     _replace_table(timeline, "AuditTimeline", f"A4:H{timeline.max_row}")
 
-    # 人员分工：新增独立复核角色。
+    # 人员分工：项目合伙人与质量复核人分别列示，避免合并职责。
     roles = wb["人员分工"]
-    existing = [roles.cell(row, 1).value for row in range(2, roles.max_row + 1)]
-    if "项目合伙人/质量复核人" not in existing:
-        roles.insert_rows(2)
-        for col, value in enumerate(["项目合伙人/质量复核人", "独立复核重大判断、重要性、持续经营、舞弊风险、报表披露及最终结论", "重大判断及整体层面", "项目经理形成的重大判断与结论", "不参与同一事项的编制或执行"], start=1):
-            roles.cell(2, col, value)
+    roles.delete_rows(1, roles.max_row)
+    roles.append(["角色", "主要职责", "主要模块", "重点复核事项", "协作关系"])
+    role_rows = [
+        ("项目合伙人", "对项目质量承担总体责任，审批重要性并复核重大判断与最终结论", "重大判断及整体层面", "重要性、持续经营、舞弊风险、重大差异和报告结论", "复核项目经理形成的判断，不参与同一事项的编制"),
+        ("质量复核人（如适用）", "客观评价重大判断和拟出具报告，不代替项目合伙人职责", "项目质量复核", "重大判断、独立性、报告适当性及未决事项", "独立于项目组，不参与项目执行或决策形成"),
+        ("项目经理", "总体计划、风险判断、团队管理、质量复核和管理层沟通", "全部模块", "关键判断、重大差异和项目结论", "向项目合伙人汇报并安排项目组任务"),
+        ("高级审计员A", "收入、应收账款、客户函证和外销测试", "收入/应收", "函证样本、截止测试、坏账准备", "审计员B支持数据分析"),
+        ("高级审计员B", "存货、成本、盘点和毛利率分析", "存货/成本", "监盘、跌价、成本重算", "审计员B支持数据整理"),
+        ("审计员A", "资金、借款、费用、预付款和其他流动资产", "资金/其他", "银行函证、流动性、预付期后结转", "项目经理直接复核"),
+        ("审计员B", "全量数据整理、分析程序、样本准备和底稿归档", "跨模块", "数据完整性、图表、索引", "两名高级审计员复核"),
+    ]
+    for role_row in role_rows:
+        roles.append(role_row)
     _style_header(roles, 1, 1, 5); _style_body(roles, 2, roles.max_row, 1, 5)
     _replace_table(roles, "RolesTable", f"A1:E{roles.max_row}")
 
@@ -445,8 +522,10 @@ def build_audit_plan_workbook() -> dict[str, object]:
     risk_last_row = len(evaluate_risks()) + 2
     for old in original_rows:
         code, area, risk, assertions, procedure, owner, reviewer, start, finish = old[:9]
+        if code == "I-01":
+            procedure = "参加年末盘点；账到物和物到账抽盘；检查委托加工存货；如存在异地存货，取得第三方证据"
         if code in independent or owner == reviewer:
-            reviewer = "项目合伙人/质量复核人"
+            reviewer = "项目合伙人"
         proc.append([code, procedure_risk_id(code), area, risk, assertions, procedure, owner, reviewer, None, None, "风险评估/资料取得", start, finish, None, None, None, 0, "未开始", "", "", "待执行", "对应模块资料", "未提供", None, "", "未复核", ""])
     for code, area, level, risk, assertions, procedure, owner, reviewer, start, finish, dependency in ADDITIONAL_PROCEDURES:
         proc.append([code, "R-BASE", area, risk, assertions, procedure, owner, reviewer, None, None, "基础分析/资料取得", date.fromisoformat(start), date.fromisoformat(finish), None, None, None, 0, "未开始", "", "", "待执行", dependency, "未提供", None, "", "未复核", ""])

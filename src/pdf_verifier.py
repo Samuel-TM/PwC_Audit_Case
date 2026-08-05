@@ -16,12 +16,17 @@ FORBIDDEN_PDF_TEXT = [
     "output/",
     "新增 26 项",
     "冲突降为 0",
+    "待填写",
+    ".md",
+    "_V3",
+    "回答时先",
+    "台账保持待执行",
 ]
 
 
 def verify_pdf(pdf_path: Path, log_path: Path) -> dict[str, object]:
     document = fitz.open(pdf_path)
-    render_dir = ROOT / ".cache" / "pdf_v3" / "pages"
+    render_dir = ROOT / ".cache" / "pdf_v4" / "pages"
     render_dir.mkdir(parents=True, exist_ok=True)
     page_ratios: list[float] = []
     text_lengths: list[int] = []
@@ -44,6 +49,11 @@ def verify_pdf(pdf_path: Path, log_path: Path) -> dict[str, object]:
 
     combined_text = "\n".join(full_text)
     forbidden_hits = [term for term in FORBIDDEN_PDF_TEXT if term in combined_text]
+    pages_missing_sources = [
+        page_number
+        for page_number, text in enumerate(full_text, start=1)
+        if 2 <= page_number <= 12 and "来源：" not in text
+    ]
     log_text = log_path.read_text(encoding="utf-8", errors="replace") if log_path.exists() else ""
     layout_warnings = [
         line.strip()
@@ -60,6 +70,7 @@ def verify_pdf(pdf_path: Path, log_path: Path) -> dict[str, object]:
         "forbidden_text_absent": not forbidden_hits,
         "no_overfull_boxes": not layout_warnings,
         "all_pages_rendered": len(rendered_pages) == 15,
+        "data_pages_have_sources": not pages_missing_sources,
     }
     result: dict[str, object] = {
         "status": "PASS" if all(checks.values()) else "FAIL",
@@ -70,6 +81,7 @@ def verify_pdf(pdf_path: Path, log_path: Path) -> dict[str, object]:
         "text_lengths": text_lengths,
         "image_heights_cm": image_heights_cm,
         "forbidden_hits": forbidden_hits,
+        "pages_missing_sources": pages_missing_sources,
         "layout_warnings": layout_warnings,
         "latex_warning_count": len(latex_warnings),
         "rendered_pages": rendered_pages,

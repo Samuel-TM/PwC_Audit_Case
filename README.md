@@ -1,6 +1,6 @@
 # A 公司模拟财务报表审计案例
 
-本项目依据案例 PDF 与 Version 3 优化要求，完成 A 公司 2020—2022 年财务分析、风险评估、审计资料清单、四周审计计划、导师问答及 15 页 LaTeX 汇报 PDF。最终汇报只使用 Beamer + XeLaTeX，不生成或维护 PPTX。
+本项目依据案例 PDF 与 Version 4 优化要求，完成 A 公司 2020—2022 年财务分析、风险评估、审计资料清单、四周审计计划、导师问答及 15 页 LaTeX 汇报 PDF。最终汇报只使用 Beamer + XeLaTeX，不生成或维护 PPTX。
 
 ## 一键构建
 
@@ -11,22 +11,21 @@ python scripts/build_all.py
 python -m pytest -q
 ```
 
-最终文件位于 `output/`。金额单位统一为万元；原表中的 `-` 录入为缺失值。风险判断是模拟审计的计划阶段判断，不代表已经发现错报、舞弊或形成正式审计意见。
+V4 最终文件位于 `output/output_V4/`。唯一 LaTeX 源文件为 `report/A公司审计案例汇报.tex`，由 Git 管理版本，不再复制到 output。金额单位统一为万元；原表中的 `-` 录入为缺失值。风险判断是模拟审计的计划阶段判断，不代表已经发现错报、舞弊或形成正式审计意见。
 
 ## 主要输出
 
-- `A公司审计案例汇报_V3.tex`
-- `A公司审计案例汇报_V3.pdf`
-- `审计资料清单_V3.xlsx`
-- `审计计划_V3.xlsx`
-- `导师问答手册_V3.md`
-- `analysis_summary_V3.md`
-- `charts_V3/` 九张 1600×900 图表
-- `build_report_V3.txt`
-- `validation_report_V3.json`
-- `audit_risk_results_V3.json`
-- `workbook_verification_V3.json`
-- `pdf_verification_V3.json`
+- `A公司审计案例汇报_V4.pdf`
+- `审计资料清单_V4.xlsx`
+- `审计计划_V4.xlsx`
+- `导师问答手册_V4.md`
+- `analysis_summary_V4.md`
+- `charts_V4/` 九张 1600×900 图表
+- `build_report_V4.txt`
+- `validation_report_V4.json`
+- `audit_risk_results_V4.json`
+- `workbook_verification_V4.json`
+- `pdf_verification_V4.json`
 
 ## 数据口径
 

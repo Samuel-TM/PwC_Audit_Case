@@ -57,9 +57,10 @@ def validate_all() -> dict:
     region = load_csv("revenue_by_region.csv")
     quarter = load_csv("revenue_by_quarter.csv")
     cost = load_csv("cost_structure.csv")
+    purchases = load_csv("raw_material_purchases.csv")
     revenue_class = {2020: (18836.61, 836.64, 19673.24), 2021: (25734.65, 320.24, 26054.89), 2022: (26020.41, 353.09, 26373.49)}
     checks.append(_check("主营业务+其他业务=营业收入", [main + other - total for main, other, total in revenue_class.values()], "2020及2022存在0.01万元四舍五入差异"))
-    for table_name, table in [("产品收入", product), ("区域收入", region), ("季度收入", quarter), ("成本构成", cost)]:
+    for table_name, table in [("产品收入", product), ("区域收入", region), ("季度收入", quarter), ("成本构成", cost), ("原材料采购", purchases)]:
         diffs = []
         pct_diffs = []
         detail = table.iloc[:-1]
@@ -111,4 +112,3 @@ def assert_valid() -> dict:
     if failures:
         raise AssertionError(f"data validation failed: {failures}")
     return report
-

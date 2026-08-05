@@ -1,5 +1,5 @@
 % !TeX program = xelatex
-% Version 3：16:9 Beamer 最终汇报版。
+% Version 4：16:9 Beamer 正式汇报版。
 \documentclass[aspectratio=169,11pt]{beamer}
 \usepackage{fontspec}
 \usepackage{xeCJK}
@@ -90,7 +90,15 @@
     {\cardtitlefont\bfseries\color{PwCInk}#3}
   \end{minipage}}
 
-\graphicspath{{output/charts_V3/}}
+\newcommand{\TeamMembers}{审计案例项目组}
+\newcommand{\PresenterName}{项目组代表}
+\newcommand{\ChecklistTotal}{101}
+\newcommand{\ChecklistHigh}{38}
+\newcommand{\ChecklistMedium}{50}
+\newcommand{\ChecklistLow}{13}
+\newcommand{\BusinessModules}{9}
+\IfFileExists{.cache/generated_metrics_V4.tex}{\input{.cache/generated_metrics_V4.tex}}{}
+\graphicspath{{output/output_V4/charts_V4/}}
 
 \begin{document}
 
@@ -115,29 +123,43 @@
   \vspace{0.42cm}
   {\fontsize{13.5}{16.5}\selectfont\color{PwCGrey}基于 2020--2022 年案例数据｜风险导向｜计划阶段演练}\par
   \vfill
-  {\fontsize{9.2}{11.2}\selectfont\color{PwCInk}小组成员：待填写\quad｜\quad 汇报人：待填写}\par\vspace{0.10cm}
-  {\fontsize{10}{12}\selectfont\color{PwCInk}汇报日期：2026 年 8 月\quad｜\quad 模拟审计期间：2022-12-27 至 2023-01-27}\par
+  {\fontsize{9.2}{11.2}\selectfont\color{PwCInk}小组成员：\TeamMembers\quad｜\quad 汇报人：\PresenterName}\par\vspace{0.10cm}
+  {\fontsize{10}{12}\selectfont\color{PwCInk}汇报日期：2026 年 8 月\quad｜\quad 模拟项目时间轴：2022-12-27 至 2023-01-27}\par
   \vspace{0.20cm}
   {\sourcefont\color{PwCGrey}本材料为模拟审计案例分析，不构成真实审计意见。}
 \end{frame}
 
-% 02 项目背景
-\begin{frame}{审计策略框架：从财务信号到独立复核}
-  \vspace{0.42cm}
-  \strategycard{PwCOrange}{01}{识别财务异常信号}\hfill
-  \strategycard{PwCRed}{02}{映射风险与审计认定}\hfill
-  \strategycard{PwCOrange}{03}{设计程序与预期证据}\hfill
-  \strategycard{PwCDarkRed}{04}{落实分工、时间与复核}
-  \vspace{0.50cm}
-  \begin{tikzpicture}
-    \draw[PwCLight,line width=3pt] (0,0)--(14.6,0);
-    \foreach \x/\c in {0.4/PwCOrange,5.0/PwCRed,9.7/PwCOrange,14.2/PwCDarkRed}
-      \fill[\c] (\x,0) circle (0.10cm);
-  \end{tikzpicture}
-  \vspace{0.20cm}
-  \begin{beamercolorbox}[wd=\linewidth,sep=0.20cm]{normal text}
-    \tinybody\color{PwCInk}\bfseries 计划阶段边界：\mdseries 案例没有交易明细、重要性审批、内控测试、函证、盘点或期后结果，因此只形成风险评估与程序设计，不形成真实审计意见。
-  \end{beamercolorbox}
+% 02 业务背景与策略
+\begin{frame}{业务背景与审计策略：先理解业务，再配置资源}
+  \vspace{0.05cm}
+  \metriccard{80.40\%}{板材与塑料组件采购占比}\hfill
+  \metriccard[PwCRed]{72.92\%}{服务器滑轨收入增速}\hfill
+  \metriccard[PwCOrange]{23.61\%}{2022 年外销占比}\hfill
+  \metriccard[PwCDarkRed]{5 人}{财务团队规模}
+  \vspace{0.26cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \tinybody
+      \tagbox{PwCOrange}{经营画像}
+      \begin{itemize}\setlength\itemsep{0.08cm}
+        \item 家具滑轨为主要产品，服务器滑轨增长较快
+        \item 采购集中于板材与塑料组件，成本受材料端影响明显
+        \item 董事长兼总经理，财务团队由财务负责人、经理、会计与出纳组成
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \tinybody
+      \tagbox{PwCRed}{四步审计路径}
+      \vspace{0.10cm}
+      识别信号 $\rightarrow$ 映射认定 $\rightarrow$ 设计程序与证据 $\rightarrow$ 落实分工、时间与独立复核。
+      \vspace{0.16cm}
+      \begin{beamercolorbox}[wd=\linewidth,sep=0.16cm]{normal text}
+        \tinybody\color{PwCInk}\bfseries 范围边界：\mdseries 本案例只形成计划阶段风险评估与程序设计，不形成真实审计意见。
+      \end{beamercolorbox}
+    \end{column}
+  \end{columns}
+  \vspace{0.08cm}
+  {\sourcefont\color{PwCGrey}来源：案例 PDF 第 1--2、6 页；服务器滑轨增速与采购占比由案例数据重算。}
 \end{frame}
 
 % 03 财务概览
@@ -163,6 +185,8 @@
       \end{itemize}
     \end{column}
   \end{columns}
+  \vspace{0.04cm}
+  {\sourcefont\color{PwCGrey}来源：案例 PDF 第 3--4、6 页；比率由案例数据重算。}
 \end{frame}
 
 % 04 关键趋势
@@ -181,20 +205,20 @@
     \end{column}
   \end{columns}
   \vspace{0.10cm}
-  {\sourcefont\color{PwCGrey}数据来源：案例 PDF 及项目结构化数据；金额单位为万元。}
+  {\sourcefont\color{PwCGrey}来源：案例 PDF 第 3--4 页；金额单位为万元，比率由案例数据重算。}
 \end{frame}
 
 % 05 风险地图
-\begin{frame}{风险地图：六维评分排序，不替代职业判断}
+\begin{frame}{风险排序：高风险优先投入，权益变动保持中等关注}
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.64\textwidth}
-      \includegraphics[width=\linewidth,height=4.70cm,keepaspectratio]{08_audit_risk_heatmap.png}
+      \includegraphics[width=\linewidth,height=4.70cm,keepaspectratio]{08_audit_risk_ranking.png}
     \end{column}
     \begin{column}{0.33\textwidth}
       \tinybody
       \begin{tabular}{@{}>{\bfseries}p{0.64\linewidth} >{\centering\arraybackslash}p{0.18\linewidth}@{}}
         \toprule
-        风险项目 & 最终等级\\
+        \multicolumn{2}{l}{\textbf{高及中高风险}}\\
         \midrule
         营业收入 & \color{PwCRed}高\\
         应收账款 & \color{PwCRed}高\\
@@ -205,125 +229,112 @@
         \bottomrule
       \end{tabular}\par
       \vspace{0.10cm}
-      {\color{PwCOrange}\bfseries 规则：}\color{PwCInk}金额、波动、判断、舞弊、复杂、取证各 1--5 分；风险 ID 连接登记表与程序表。
+      {\color{PwCOrange}\bfseries 中等关注：}\color{PwCInk}股本与资本公积变动需检查批准、出资、工商登记与列报，但不与前三项等量配置资源。
     \end{column}
   \end{columns}
+  \vspace{0.03cm}
+  {\sourcefont\color{PwCGrey}来源：案例 PDF 第 3--4、9--10 页；等级为计划阶段六维评分结果。}
 \end{frame}
 
 % 06 收入
-\begin{frame}{关键审计事项 1：营业收入与外销确认}
-  \vspace{-0.12cm}
+\begin{frame}{计划阶段拟重点审计事项 1：营业收入与外销确认}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.49\textwidth}
-      \includegraphics[width=\linewidth,height=3.00cm,keepaspectratio]{05_export_share.png}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+    \begin{column}{0.40\textwidth}
+      \includegraphics[width=\linewidth,height=3.45cm,keepaspectratio]{05_export_share.png}
+      \vspace{0.12cm}
       \tinybody\textbf{核心判断}\par\vspace{0.06cm}
       增长放缓与外销提升增加确认时点复杂性，但不等于收入已经虚增。
     \end{column}
-  \end{columns}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.49\textwidth}
-      \infobox{风险原因}{收入重大；年末业绩压力；外销贸易条款和物流链复杂。}
-      \infobox{数据依据}{2022 年收入增速 1.22\%；外销占比升至 23.61\%。}
+    \begin{column}{0.57\textwidth}
+      \tinybody
+      \infobox{风险原因}{收入金额重大；外销贸易条款影响控制权转移；期末前后交易存在跨期可能性。}
+      \infobox{数据依据}{2022 年收入增速 1.22\%；外销占比 23.61\%；第四季度占比 22.53\%，低于上年 28.90\%。}
       \infobox{审计认定}{发生、准确性、截止、分类、完整性。}
-    \end{column}
-    \begin{column}{0.48\textwidth}
       \infobox{审计程序}{合同到回款证据链；函证；年末截止；外销条款与报关物流核对。}
       \infobox{预期证据}{合同、订单、发票、出库、报关、提单、签收、回款与退货记录。}
-      \infobox[PwCRed]{计划阶段边界}{未取得交易级明细和外部回函，不形成收入错报结论。}
+      \infobox[PwCRed]{判断边界}{四季度占比下降不消除截止风险；仍需通过交易证据判断期间归属。}
     \end{column}
   \end{columns}
+  {\sourcefont\color{PwCGrey}来源：案例 PDF 第 5--6 页；季度占比与增速由案例数据重算。}
 \end{frame}
 
 % 07 应收
-\begin{frame}{关键审计事项 2：应收账款存在性与可收回性}
-  \vspace{-0.12cm}
+\begin{frame}{计划阶段拟重点审计事项 2：应收账款}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.49\textwidth}
-      \includegraphics[width=\linewidth,height=3.00cm,keepaspectratio]{06_receivables_net_ratio.png}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+    \begin{column}{0.40\textwidth}
+      \includegraphics[width=\linewidth,height=3.30cm,keepaspectratio]{06_receivables_net_ratio.png}
+      \vspace{0.12cm}
       \tinybody\textbf{核心判断}\par\vspace{0.06cm}
       余额重大且减值依赖估计，必须同时验证“余额是否真实”和“能否收回”。
+      \par\vspace{0.10cm}{\color{PwCOrange}\bfseries 数据：}\ 2022 年净额 9,059 万元，占收入 34.35\%。
     \end{column}
-  \end{columns}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.49\textwidth}
+    \begin{column}{0.57\textwidth}
+      \tinybody
       \infobox{风险原因}{应收与收入联动；账龄、争议与坏账模型涉及管理层判断。}
-      \infobox{数据依据}{2022 年净额 9,059 万元，占收入 34.35\%。}
       \infobox{审计认定}{存在、权利和义务、计价、完整性、列报。}
-    \end{column}
-    \begin{column}{0.48\textwidth}
       \infobox{审计程序}{分层函证；期后回款；账龄复核；逾期争议；坏账模型重算。}
       \infobox{预期证据}{客户回函、银行回款、合同发票、对账单、账龄及减值模型。}
-      \infobox[PwCRed]{计划阶段边界}{未回函不能视为相符；替代程序是否充分需单独评价。}
+      \infobox[PwCRed]{判断边界}{未回函不能视为相符；替代程序是否充分需单独评价。}
     \end{column}
   \end{columns}
+  {\sourcefont\color{PwCGrey}来源：案例 PDF 第 3、7 页；占收入比例由案例数据重算。}
 \end{frame}
 
 % 08 存货
-\begin{frame}{关键审计事项 3：存货存在、权属与计价}
-  \vspace{-0.12cm}
+\begin{frame}{计划阶段拟重点审计事项 3：存货存在、权属与计价}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.49\textwidth}
-      \includegraphics[width=\linewidth,height=3.00cm,keepaspectratio]{07_inventory_composition_2022.png}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+    \begin{column}{0.42\textwidth}
+      \includegraphics[width=\linewidth,height=3.45cm,keepaspectratio]{07_inventory_composition_2022.png}
+      \vspace{0.12cm}
       \tinybody\textbf{核心判断}\par\vspace{0.06cm}
       账面明细不能证明实物存在；现场程序与成本、跌价测试缺一不可。
     \end{column}
-  \end{columns}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.49\textwidth}
-      \infobox{风险原因}{类别多、地点分散、材料波动；跌价准备依赖库龄与期后售价。}
+    \begin{column}{0.55\textwidth}
+      \tinybody
+      \infobox{风险原因}{存货类别包括委托加工物资，材料价格波动；跌价准备依赖库龄与期后售价。}
       \infobox{数据依据}{2022 年账面余额 4,737.12 万元，跌价准备 232.98 万元，净额 4,504.14 万元。}
       \infobox{审计认定}{存在、完整性、权利和义务、计价、截止。}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \infobox{审计程序}{监盘与双向抽盘；第三方存货确认；成本重算；跌价与截止测试。}
-      \infobox{预期证据}{监盘记录、抽盘表、第三方确认、BOM/工单、成本表、期后售价。}
-      \infobox[PwCRed]{计划阶段边界}{案例未提供盘点结果，台账保持待执行，不预设差异。}
+      \infobox{审计程序}{监盘与双向抽盘；委托加工存货取得第三方证据；成本重算；跌价与截止测试。}
+      \infobox{预期证据}{监盘记录、抽盘表、受托方确认、BOM/工单、成本表、期后售价。}
+      \infobox[PwCRed]{判断边界}{如存在异地存货，再按金额与风险决定函证或现场程序；不对存放地点作事实假设。}
     \end{column}
   \end{columns}
+  {\sourcefont\color{PwCGrey}来源：案例 PDF 第 8 页；金额单位为万元。}
 \end{frame}
 
 % 09 成本毛利
-\begin{frame}{关键审计事项 4：成本归集与毛利异常}
-  \vspace{-0.12cm}
+\begin{frame}{计划阶段拟重点审计事项 4：成本归集与毛利异常}
   \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.49\textwidth}
-      \includegraphics[width=\linewidth,height=3.00cm,keepaspectratio]{04_product_gross_margin.png}
-    \end{column}
-    \begin{column}{0.48\textwidth}
+    \begin{column}{0.42\textwidth}
+      \includegraphics[width=\linewidth,height=3.45cm,keepaspectratio]{04_product_gross_margin.png}
+      \vspace{0.12cm}
       \tinybody\textbf{核心判断}\par\vspace{0.06cm}
       服务器滑轨毛利率由 32.20\% 降至 22.87\%；售价下降、单位成本上升是分析方向，仍需证据验证。
     \end{column}
-  \end{columns}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.49\textwidth}
+    \begin{column}{0.55\textwidth}
+      \tinybody
       \infobox{风险原因}{售价、材料耗用和制造费用分摊共同影响单位成本与利润。}
       \infobox{数据依据}{主营毛利率降至 21.38\%；服务器滑轨降至 22.87\%。}
       \infobox{审计认定}{准确性、完整性、截止、分类、计价。}
-    \end{column}
-    \begin{column}{0.48\textwidth}
       \infobox{审计程序}{复核成本方法；抽查领料工时；重算单位成本；按产品客户月份下钻。}
       \infobox{预期证据}{BOM、领料单、工时、费用分配表、成本结转及采购价格。}
-      \infobox[PwCRed]{计划阶段边界}{毛利率下降是异常信号，不是造假证据。}
+      \infobox[PwCRed]{判断边界}{毛利率下降是异常信号，不是造假证据。}
     \end{column}
   \end{columns}
+  {\sourcefont\color{PwCGrey}来源：案例 PDF 第 2、6、10 页；毛利率与采购结构由案例数据重算。}
 \end{frame}
 
 % 10 资料清单
 \begin{frame}{客户配合资料：重点增强与完整报表覆盖并行}
-  \metriccard{101}{资料需求}\hfill
-  \metriccard[PwCRed]{78}{高优先级}\hfill
-  \metriccard[PwCDarkRed]{10}{工作表}\hspace{0.24\linewidth}
+  \metriccard{\ChecklistTotal}{资料需求}\hfill
+  \metriccard[PwCRed]{\ChecklistHigh}{高｜首周关键路径}\hfill
+  \metriccard[PwCOrange]{\ChecklistMedium}{中｜实质性程序前}\hfill
+  \metriccard[PwCDarkRed]{\ChecklistLow}{低｜披露与收尾}
   \vspace{0.24cm}
   \tinybody
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.48\textwidth}
-      \tagbox{PwCRed}{首批高优先级}
+      \tagbox{PwCRed}{高优先级：只保留首周关键路径}
       \vspace{0.15cm}
       \begin{itemize}\setlength\itemsep{0.09cm}
         \item 总账、明细账、科目余额表和试算平衡表
@@ -333,7 +344,7 @@
       \end{itemize}
       \vspace{0.20cm}
       \tagbox{PwCOrange}{资料管理}
-      \tinybody 高/中/低优先级｜计划/实际日期｜未提供/已提供/待补充｜逾期标记｜责任部门与备注。
+      \tinybody 共 \BusinessModules 个业务模块；优先级依据、计划/实际日期、资料状态、逾期标记、责任部门与备注均可追踪。
     \end{column}
     \begin{column}{0.49\textwidth}
       \tagbox{PwCOrange}{完整报表范围}
@@ -350,6 +361,8 @@
       \end{beamercolorbox}
     \end{column}
   \end{columns}
+  \vspace{0.03cm}
+  {\sourcefont\color{PwCGrey}来源：案例 PDF 第 1--10 页及项目资料需求矩阵；数量由工作簿构建结果自动同步。}
 \end{frame}
 
 % 11 计划与分工
@@ -357,11 +370,13 @@
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.61\textwidth}
       \includegraphics[width=\linewidth,height=5.00cm,keepaspectratio]{09_audit_plan_gantt.png}
-      \sourcefont 盘点准备前置｜第 1 周计划｜第 2 周流程与分析｜第 3 周实质性程序｜第 4 周收尾与独立复核。
+      \sourcefont 盘点与函证前置；流程分析、高风险程序和未决事项清理并行衔接；日期为模拟项目时间轴。
     \end{column}
     \begin{column}{0.36\textwidth}
       \tinybody
-      \infobox{合伙人/质量复核人}{独立复核重大判断与最终结论。}
+      \infobox{项目合伙人}{负责总体方向、重大判断与最终结论。}
+      \vspace{0.07cm}
+      \infobox{质量复核人（如适用）}{独立评价重大判断，不参与同一事项编制或执行。}
       \vspace{0.07cm}
       \infobox{项目经理}{统筹计划、资源与沟通。}
       \vspace{0.07cm}
@@ -370,24 +385,25 @@
       \infobox{审计员 A / B}{执行基础项目与数据底稿。}
     \end{column}
   \end{columns}
+  {\sourcefont\color{PwCGrey}来源：项目模拟审计计划；项目时间轴为 2022-12-27 至 2023-01-27。}
 \end{frame}
 
 % 12 重要性与抽样
-\begin{frame}{重要性与抽样：展示方法，不编造金额}
+\begin{frame}{重要性与抽样：先确定基准，再设计样本}
   \tinybody
   \begin{columns}[T,onlytextwidth]
     \begin{column}{0.49\textwidth}
       \tagbox{PwCOrange}{重要性决策流程}
       \vspace{0.16cm}
       \begin{enumerate}\setlength\itemsep{0.10cm}
-        \item 在税前利润、营业收入或总资产中选择稳定且相关的基准
-        \item 取得经核对的 TB 金额，并记录比例判断依据
+        \item 根据案例数据比较税前利润、营业收入和总资产等候选基准
+        \item 取得经核对的 TB，考虑报表使用者关注点并记录选择依据
         \item 计算整体重要性、实际执行重要性和明显微小临界值
         \item 结合关联方、舞弊、监管等定性因素复核
       \end{enumerate}
       \vspace{0.16cm}
       \begin{beamercolorbox}[wd=\linewidth,sep=0.18cm]{normal text}
-        \color{PwCOrange}\bfseries 当前状态：\color{PwCInk}\mdseries 金额待取得经核对 TB 后确定，方法和审批链已建立。
+        \color{PwCOrange}\bfseries 当前状态：\color{PwCInk}\mdseries 候选基准可比较；正式金额仍待 TB 核对、使用者与定性因素评估及审批。
       \end{beamercolorbox}
     \end{column}
     \begin{column}{0.48\textwidth}
@@ -403,6 +419,8 @@
       \tinybody 样本量依据：执行重要性、总体规模、控制依赖、风险等级和预期偏差；取得完整总体后再计算。
     \end{column}
   \end{columns}
+  \vspace{0.04cm}
+  {\sourcefont\color{PwCGrey}来源：案例 PDF 第 3--4 页及项目重要性与抽样模板。}
 \end{frame}
 
 % 13 执行问题与控制
@@ -458,13 +476,13 @@
       \end{tikzpicture}
     \end{column}
     \begin{column}{0.49\textwidth}
-      \infobox{治理}{重大判断由项目合伙人或质量复核人独立复核。}
+      \infobox{治理}{项目合伙人复核重大判断；质量复核人（如适用）保持独立。}
       \vspace{0.10cm}
       \infobox{范围}{资料清单覆盖主要报表项目。}
       \vspace{0.10cm}
       \infobox{执行}{高风险实施增强程序，一般项目执行基础程序。}
       \vspace{0.10cm}
-      \infobox[PwCRed]{边界}{风险不是错报，程序不是证据，计划不是审计意见。}
+      \infobox[PwCRed]{边界}{本汇报是计划阶段模拟材料，不构成真实审计意见。}
     \end{column}
   \end{columns}
 \end{frame}
@@ -477,21 +495,16 @@
     \fill[PwCOrange] ($(current page.north east)+(-3.2cm,-1.25cm)$) -- ++(2.0cm,0) -- ++(-0.95cm,-1.25cm) -- cycle;
     \fill[PwCRed] ($(current page.north east)+(-1.2cm,-1.25cm)$) -- ++(0.85cm,0) -- ++(0,-1.25cm) -- cycle;
     \node[anchor=south east] at ($(current page.south east)+(-0.62cm,0.48cm)$)
-      {\includegraphics[width=1.75cm]{assets/derived/PwC_2025_Logo.pdf}};
+      {\includegraphics[width=1.55cm]{assets/derived/PwC_logo_cropped.png}};
   \end{tikzpicture}
   \vspace{0.55cm}
-  {\closingtitlefont\bfseries\color{PwCInk}Q\&A}\par
+  {\closingtitlefont\bfseries\color{PwCInk}Thank you}\par
   \vspace{0.34cm}
-  {\fontsize{17}{20.5}\selectfont\bfseries\color{PwCInk}回答时先区分事实、计算、风险与结论}\par
-  \vspace{0.48cm}
-  \metriccard{1.22\%}{收入增速｜放缓不等于错报}\hfill
-  \metriccard[PwCRed]{34.35\%}{应收/收入｜需外部证据}\hfill
-  \metriccard{21.38\%}{主营毛利率｜异常信号}\hfill
-  \metriccard[PwCDarkRed]{23.61\%}{外销占比｜时点更复杂}
+  {\fontsize{21}{25}\selectfont\bfseries\color{PwCOrange}Questions \& Answers}\par
+  \vspace{0.70cm}
+  {\fontsize{17}{21}\selectfont\bfseries\color{PwCInk}核心结论：以收入、应收与存货为资源重点，\par 用外部证据和独立复核把计划转化为可验证结论。}\par
   \vfill
-  {\fontsize{9.2}{11.2}\selectfont\color{PwCInk}小组成员：待填写\quad｜\quad 汇报人：待填写}\par\vspace{0.10cm}
-  {\fontsize{11.5}{14}\selectfont\bfseries\color{PwCInk}完整现场问答见《导师问答手册\_V3.md》}\par
-  \vspace{0.14cm}
+  {\fontsize{9.2}{11.2}\selectfont\color{PwCInk}小组成员：\TeamMembers\quad｜\quad 汇报人：\PresenterName}\par\vspace{0.18cm}
   {\sourcefont\color{PwCGrey}本汇报为案例计划阶段材料，不构成真实审计意见。}
 \end{frame}
 
