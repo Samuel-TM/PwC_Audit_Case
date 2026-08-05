@@ -10,6 +10,7 @@ env/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.cache/
 .mypy_cache/
 .coverage
 htmlcov/

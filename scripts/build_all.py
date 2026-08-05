@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import json
 import os
-import shutil
 import subprocess
 import sys
 from dataclasses import asdict
@@ -10,16 +9,17 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
-os.environ.setdefault("MPLCONFIGDIR", str(ROOT / "tmp" / "matplotlib"))
+os.environ.setdefault("MPLCONFIGDIR", str(ROOT / ".cache" / "matplotlib"))
 os.environ.setdefault("FONTCONFIG_FILE", str(ROOT / "assets" / "fonts" / "fonts.conf"))
-os.environ.setdefault("XDG_CACHE_HOME", str(ROOT / "tmp" / "cache"))
+os.environ.setdefault("XDG_CACHE_HOME", str(ROOT / ".cache" / "xdg"))
 
 from src.analysis import build_summary
 from src.charts import generate_charts
-from src.config import BUILD_DIR, OUTPUT_DIR, PREVIEW_DIR, ensure_directories
+from src.config import OUTPUT_DIR, ensure_directories
 from src.qa_generator import write_qa
 from src.risk_engine import evaluate_risks
 from src.validators import assert_valid
+from src.workbook_builder import build_all_workbooks
 
 
 def run(command: list[str], env: dict | None = None) -> None:
@@ -38,20 +38,10 @@ def main() -> None:
     charts = generate_charts()
     write_qa()
 
-    node = os.environ.get("CODEX_PRIMARY_RUNTIME_NODE", "node")
-    skill_dir = Path("/root/.codex/skills/builtins/presentations")
-    setup = skill_dir / "container_tools" / "setup_artifact_tool_workspace.mjs"
-    run([node, str(setup), "--workspace", str(BUILD_DIR)])
-
     env = os.environ.copy()
     env["FONTCONFIG_FILE"] = str(ROOT / "assets" / "fonts" / "fonts.conf")
-    env["MPLCONFIGDIR"] = str(ROOT / "tmp" / "matplotlib")
-    run([node, str(BUILD_DIR / "build_workbooks.mjs"), "all"], env=env)
-    run([sys.executable, str(ROOT / "scripts" / "fix_freeze_panes.py")], env=env)
-    shutil.copy2(OUTPUT_DIR / "审计资料清单.xlsx", ROOT / "templates" / "audit_checklist_template.xlsx")
-    shutil.copy2(OUTPUT_DIR / "审计计划.xlsx", ROOT / "templates" / "audit_plan_template.xlsx")
-    run([node, str(BUILD_DIR / "build_presentation.mjs")], env=env)
-
+    env["MPLCONFIGDIR"] = str(ROOT / ".cache" / "matplotlib")
+    workbooks = build_all_workbooks()
     run([sys.executable, str(ROOT / "scripts" / "export_pdf.py")], env=env)
     test_env = env.copy()
     vendor_path = str(ROOT / "vendor" / "python")
@@ -61,7 +51,7 @@ def main() -> None:
         raise RuntimeError(f"pytest failed\n{test.stdout}\n{test.stderr}")
 
     required = [
-        "A公司审计案例汇报.pptx", "A公司审计案例汇报.pdf", "审计资料清单.xlsx",
+        "A公司审计案例汇报.tex", "A公司审计案例汇报.pdf", "审计资料清单.xlsx",
         "审计计划.xlsx", "导师问答手册.md", "analysis_summary.md",
         "validation_report.json", "audit_risk_results.json", "workbook_verification.json",
     ]
@@ -79,8 +69,8 @@ def main() -> None:
         "",
         f"数据校验：{validation['status']}（{len(validation['checks'])} 项）",
         f"图表：{len(charts)} 张，均为 1600×900 PNG",
-        "PPT：15 页；已逐页渲染并保存布局检查文件",
-        "Excel：资料清单 8 个工作表；审计计划 6 个工作表；已逐表渲染",
+        "LaTeX 汇报：15 页；由 XeLaTeX 直接生成 PDF，未修改 PPTX",
+        f"Excel：资料清单 {workbooks['checklist']['sheet_count']} 个工作表；审计计划 {workbooks['plan']['sheet_count']} 个工作表",
         "导师问答：30 题，每题含 30 秒回答和追问展开",
         f"测试：{test.stdout.strip()}",
         "",

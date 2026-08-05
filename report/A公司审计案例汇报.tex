@@ -1,0 +1,487 @@
+% !TeX program = xelatex
+% 视觉参考：source/ 下 PwC 公开材料的橙红几何块、大留白、黑灰正文和简洁页脚。
+% 本文件仅模仿公开材料的视觉语言，不表示由 PwC 出具或认可。
+\documentclass[aspectratio=169,11pt]{beamer}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tikz}
+\usepackage{ragged2e}
+\usepackage{amsmath}
+\usetikzlibrary{calc,positioning,shapes.geometric}
+
+\setmainfont{NotoSansSC-Regular.ttf}[
+  Path=assets/fonts/,
+  BoldFont=NotoSansSC-Bold.ttf
+]
+\setCJKmainfont{Noto Sans SC}[
+  Path=assets/fonts/,
+  UprightFont=NotoSansSC-Regular.ttf,
+  BoldFont=NotoSansSC-Bold.ttf
+]
+\setsansfont{NotoSansSC-Regular.ttf}[
+  Path=assets/fonts/,
+  BoldFont=NotoSansSC-Bold.ttf
+]
+\setCJKsansfont{Noto Sans SC}[
+  Path=assets/fonts/,
+  UprightFont=NotoSansSC-Regular.ttf,
+  BoldFont=NotoSansSC-Bold.ttf
+]
+
+\definecolor{PwCInk}{HTML}{2D2D2D}
+\definecolor{PwCGrey}{HTML}{6D6E71}
+\definecolor{PwCLight}{HTML}{F2F2F2}
+\definecolor{PwCOrange}{HTML}{EB8C00}
+\definecolor{PwCBrightOrange}{HTML}{FFB600}
+\definecolor{PwCRed}{HTML}{E0301E}
+\definecolor{PwCDarkRed}{HTML}{A32020}
+\definecolor{PwCPink}{HTML}{DB536A}
+\definecolor{PwCBlue}{HTML}{355C7D}
+\definecolor{PwCGreen}{HTML}{2E7D5B}
+
+\setbeamertemplate{navigation symbols}{}
+\setbeamercolor{normal text}{fg=PwCInk,bg=white}
+\setbeamercolor{frametitle}{fg=PwCInk,bg=white}
+\setbeamerfont{frametitle}{size=\fontsize{21}{24}\selectfont,series=\bfseries}
+\setbeamersize{text margin left=0.62cm,text margin right=0.62cm}
+\setbeamertemplate{frametitle}{%
+  \vspace{0.18cm}\insertframetitle\par
+  \vspace{0.10cm}\color{PwCOrange}\rule{1.15cm}{2.4pt}\color{PwCInk}
+}
+\setbeamertemplate{footline}{%
+  \leavevmode\hbox{%
+    \begin{beamercolorbox}[wd=.78\paperwidth,ht=2.7ex,dp=1.2ex,leftskip=.62cm]{normal text}%
+      \fontsize{7.8}{9}\selectfont\color{PwCGrey}A 公司财务报表审计案例分析｜计划阶段模拟演练
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=.22\paperwidth,ht=2.7ex,dp=1.2ex,rightskip=.62cm plus1fil]{normal text}%
+      \hfill\fontsize{8}{9}\selectfont\color{PwCInk}\insertframenumber\ / 15
+    \end{beamercolorbox}}%
+}
+
+\newcommand{\bodyfont}{\fontsize{13.0}{15.8}\selectfont}
+\newcommand{\smallbody}{\fontsize{11.8}{14.3}\selectfont}
+\newcommand{\tinybody}{\fontsize{9.8}{12.0}\selectfont}
+\newcommand{\sourcefont}{\fontsize{8.2}{9.5}\selectfont}
+\newcommand{\emphnum}[1]{{\fontsize{24}{27}\selectfont\bfseries\color{PwCOrange}#1}}
+\newcommand{\tagbox}[2]{%
+  \noindent\color{#1}\rule{0.08cm}{0.52cm}\hspace{0.12cm}%
+  {\fontsize{12.2}{14.2}\selectfont\color{PwCInk}\bfseries #2}\par}
+\newcommand{\infobox}[3][PwCOrange]{%
+  \noindent\begin{tabular}{@{}p{0.018\linewidth}@{\hspace{0.09cm}}p{0.90\linewidth}@{}}
+    \color{#1}\rule{0.07cm}{0.44cm} &
+    {\fontsize{9.5}{11.3}\selectfont\color{#1}\bfseries #2\quad\color{PwCInk}\mdseries #3}
+  \end{tabular}\par\vspace{0.015cm}}
+\newcommand{\metriccard}[3][PwCOrange]{%
+  \begin{minipage}[t]{0.23\linewidth}
+    \color{#1}\rule{\linewidth}{2.2pt}\par\vspace{0.14cm}
+    {\fontsize{22}{25}\selectfont\bfseries\color{PwCInk}#2}\par\vspace{0.06cm}
+    {\fontsize{10.4}{12.2}\selectfont\color{PwCGrey}#3}
+  \end{minipage}}
+
+\graphicspath{{output/charts/}}
+
+\begin{document}
+
+% 01 封面
+\begin{frame}[plain]
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[white] (current page.south west) rectangle (current page.north east);
+    \fill[PwCLight] ($(current page.north east)+(-5.2cm,0)$) -- (current page.north east) --
+      ($(current page.south east)+(0,1.3cm)$) -- ($(current page.center)+(2.8cm,0.2cm)$) -- cycle;
+    \fill[PwCBrightOrange] ($(current page.north east)+(-4.6cm,-2.1cm)$) -- ++(1.55cm,0) -- ++(-0.75cm,-1.15cm) -- cycle;
+    \fill[PwCOrange] ($(current page.north east)+(-3.05cm,-2.1cm)$) -- ++(1.45cm,0) -- ++(0,-1.15cm) -- cycle;
+    \fill[PwCRed] ($(current page.north east)+(-1.60cm,-2.1cm)$) -- ++(1.10cm,0) -- ++(-1.10cm,-1.15cm) -- cycle;
+    \fill[PwCDarkRed] ($(current page.south west)+(0,0)$) rectangle ++(1.1cm,0.18cm);
+    \fill[PwCRed] ($(current page.south west)+(1.1cm,0)$) rectangle ++(1.1cm,0.18cm);
+    \fill[PwCOrange] ($(current page.south west)+(2.2cm,0)$) rectangle ++(4.2cm,0.18cm);
+  \end{tikzpicture}
+  \vspace{1.10cm}
+  {\fontsize{13}{15}\selectfont\bfseries\color{PwCOrange}A COMPANY · AUDIT CASE}\par\vspace{0.35cm}
+  {\fontsize{34}{40}\selectfont\bfseries\color{PwCInk}A 公司财务报表审计\par 案例分析与计划}\par
+  \vspace{0.55cm}
+  {\fontsize{16}{20}\selectfont\color{PwCGrey}基于 2020--2022 年案例数据｜风险导向｜计划阶段演练}\par
+  \vfill
+  {\fontsize{11.5}{14}\selectfont\color{PwCInk}汇报日期：2026 年 8 月\quad｜\quad 模拟审计期间：2022-12-27 至 2023-01-27}\par
+  \vspace{0.28cm}
+  {\sourcefont\color{PwCGrey}版式参考 source/ 下公开材料；不表示由 PwC 出具或认可。}
+\end{frame}
+
+% 02 项目背景
+\begin{frame}{项目背景：从财务信号到可执行审计计划}
+  \smallbody
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \tagbox{PwCOrange}{案例任务}
+      \vspace{0.18cm}
+      \begin{itemize}\setlength\itemsep{0.10cm}
+        \item 分析 A 公司 2020--2022 年财务与经营数据
+        \item 识别关键审计事项、风险原因与相关认定
+        \item 形成资料清单、人员分工和四周计划
+        \item 预判执行问题，准备导师现场问答
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.47\textwidth}
+      \tagbox{PwCRed}{本轮优化重点}
+      \vspace{0.18cm}
+      \begin{enumerate}\setlength\itemsep{0.10cm}
+        \item 消除“自己编制、自己复核”
+        \item 增加重要性、抽样和控制了解
+        \item 覆盖完整报表范围，而非只审高风险项目
+        \item 透明呈现风险评分与证据需求
+      \end{enumerate}
+    \end{column}
+  \end{columns}
+  \vspace{0.15cm}
+  \begin{beamercolorbox}[wd=\linewidth,sep=0.20cm]{normal text}
+    \tinybody\color{PwCInk}\bfseries 计划阶段边界：\mdseries 案例没有交易明细、重要性审批、内控测试、函证、盘点或期后结果，因此只形成风险评估与程序设计，不形成真实审计意见。
+  \end{beamercolorbox}
+\end{frame}
+
+% 03 财务概览
+\begin{frame}{三年财务概览：增长趋缓，营运资金承压}
+  \vspace{0.10cm}
+  \metriccard{1.22\%}{2022 年收入增速}\hfill
+  \metriccard[PwCRed]{34.35\%}{应收账款 / 收入}\hfill
+  \metriccard[PwCOrange]{21.38\%}{主营业务毛利率}\hfill
+  \metriccard[PwCDarkRed]{58.40\%}{资产负债率}
+  \vspace{0.34cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.60\textwidth}
+      \includegraphics[width=\linewidth,height=3.15cm,keepaspectratio]{01_revenue_net_profit.png}
+    \end{column}
+    \begin{column}{0.37\textwidth}
+      \fontsize{8.8}{10.3}\selectfont\renewcommand{\arraystretch}{0.86}
+      \tagbox{PwCOrange}{审计含义}
+      \vspace{0.12cm}
+      \begin{itemize}\setlength\itemsep{0.06cm}
+        \item 收入仍增长，但速度明显放缓
+        \item 净利润与毛利率同步走弱
+        \item 业绩压力增强收入截止与舞弊风险
+        \item 趋势是选样信号，不是错报结论
+      \end{itemize}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% 04 关键趋势
+\begin{frame}{关键趋势：应收、存货与现金决定资源投放}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.60\textwidth}
+      \includegraphics[width=\linewidth,height=4.35cm,keepaspectratio]{02_receivables_inventory.png}
+    \end{column}
+    \begin{column}{0.37\textwidth}
+      \smallbody
+      \infobox{应收账款}{2022 年净额 9,059 万元，占收入 34.35\%；存在与计价均需外部证据。}
+      \vspace{0.08cm}
+      \infobox[PwCRed]{存货}{2022 年净额 4,504.14 万元；盘点、权属、成本与跌价均是现场重点。}
+      \vspace{0.08cm}
+      \infobox[PwCDarkRed]{流动性}{货币资金 648.33 万元，短期借款 4,109.52 万元；需评估未来 12 个月现金流。}
+    \end{column}
+  \end{columns}
+  \vspace{0.10cm}
+  {\sourcefont\color{PwCGrey}数据来源：案例 PDF 及项目结构化数据；金额单位为万元。}
+\end{frame}
+
+% 05 风险地图
+\begin{frame}{风险地图：六维评分排序，不替代职业判断}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.53\textwidth}
+      \includegraphics[width=\linewidth,height=3.65cm,keepaspectratio]{08_audit_risk_heatmap.png}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \tinybody
+      \begin{tabular}{>{\bfseries}p{0.56\linewidth} >{\centering\arraybackslash}p{0.22\linewidth}}
+        \toprule
+        风险项目 & 最终等级\\
+        \midrule
+        营业收入 & \color{PwCRed}高\\
+        应收账款 & \color{PwCRed}高\\
+        存货 & \color{PwCRed}高\\
+        营业成本与毛利率 & \color{PwCOrange}中高\\
+        预付及其他流动资产 & \color{PwCOrange}中高\\
+        借款与持续经营 & \color{PwCOrange}中高\\
+        \bottomrule
+      \end{tabular}\par
+      \vspace{0.04cm}
+      {\color{PwCOrange}\bfseries 透明规则：}\color{PwCInk}金额、波动、判断、舞弊、复杂度、取证难度各 1--5 分；Excel 自动计算，人工调整须说明原因。
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% 06 收入
+\begin{frame}{关键审计事项 1：营业收入与外销确认}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \includegraphics[width=\linewidth,height=2.15cm,keepaspectratio]{05_export_share.png}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \smallbody\textbf{核心判断}\par\vspace{0.06cm}
+      增长放缓与外销提升增加确认时点复杂性，但不等于收入已经虚增。
+    \end{column}
+  \end{columns}
+  \vspace{0.08cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \infobox{风险原因}{收入重大；年末业绩压力；外销贸易条款和物流链复杂。}
+      \infobox{数据依据}{2022 年收入增速 1.22\%；外销占比升至 23.61\%。}
+      \infobox{审计认定}{发生、准确性、截止、分类、完整性。}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \infobox{审计程序}{合同到回款证据链；函证；年末截止；外销条款与报关物流核对。}
+      \infobox{预期证据}{合同、订单、发票、出库、报关、提单、签收、回款与退货记录。}
+      \infobox[PwCRed]{计划阶段边界}{未取得交易级明细和外部回函，不形成收入错报结论。}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% 07 应收
+\begin{frame}{关键审计事项 2：应收账款存在性与可收回性}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \includegraphics[width=\linewidth,height=2.15cm,keepaspectratio]{02_receivables_inventory.png}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \smallbody\textbf{核心判断}\par\vspace{0.06cm}
+      余额重大且减值依赖估计，必须同时验证“余额是否真实”和“能否收回”。
+    \end{column}
+  \end{columns}
+  \vspace{0.08cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \infobox{风险原因}{应收与收入联动；账龄、争议与坏账模型涉及管理层判断。}
+      \infobox{数据依据}{2022 年净额 9,059 万元，占收入 34.35\%。}
+      \infobox{审计认定}{存在、权利和义务、计价、完整性、列报。}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \infobox{审计程序}{分层函证；期后回款；账龄复核；逾期争议；坏账模型重算。}
+      \infobox{预期证据}{客户回函、银行回款、合同发票、对账单、账龄及减值模型。}
+      \infobox[PwCRed]{计划阶段边界}{未回函不能视为相符；替代程序是否充分需单独评价。}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% 08 存货
+\begin{frame}{关键审计事项 3：存货存在、权属与计价}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \includegraphics[width=\linewidth,height=2.15cm,keepaspectratio]{07_cost_structure_2022.png}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \smallbody\textbf{核心判断}\par\vspace{0.06cm}
+      账面明细不能证明实物存在；现场程序与成本、跌价测试缺一不可。
+    \end{column}
+  \end{columns}
+  \vspace{0.08cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \infobox{风险原因}{类别多、地点分散、材料波动；跌价准备依赖库龄与期后售价。}
+      \infobox{数据依据}{2022 年净额 4,504.14 万元；直接材料占成本 58.50\%。}
+      \infobox{审计认定}{存在、完整性、权利和义务、计价、截止。}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \infobox{审计程序}{监盘与双向抽盘；第三方存货确认；成本重算；跌价与截止测试。}
+      \infobox{预期证据}{监盘记录、抽盘表、第三方确认、BOM/工单、成本表、期后售价。}
+      \infobox[PwCRed]{计划阶段边界}{案例未提供盘点结果，台账保持待执行，不预设差异。}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% 09 成本毛利
+\begin{frame}{关键审计事项 4：成本归集与毛利异常}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \includegraphics[width=\linewidth,height=2.15cm,keepaspectratio]{04_product_gross_margin.png}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \smallbody\textbf{核心判断}\par\vspace{0.06cm}
+      毛利下滑需从售价、材料耗用和成本分摊三条线解释，不能直接推定造假。
+    \end{column}
+  \end{columns}
+  \vspace{0.08cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \infobox{风险原因}{售价、材料耗用和制造费用分摊共同影响单位成本与利润。}
+      \infobox{数据依据}{主营毛利率降至 21.38\%；服务器滑轨降至 22.87\%。}
+      \infobox{审计认定}{准确性、完整性、截止、分类、计价。}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \infobox{审计程序}{复核成本方法；抽查领料工时；重算单位成本；按产品客户月份下钻。}
+      \infobox{预期证据}{BOM、领料单、工时、费用分配表、成本结转及采购价格。}
+      \infobox[PwCRed]{计划阶段边界}{毛利率下降是异常信号，不是造假证据。}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% 10 资料清单
+\begin{frame}{客户配合资料：重点增强与完整报表覆盖并行}
+  \tinybody
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \tagbox{PwCRed}{首批高优先级}
+      \vspace{0.15cm}
+      \begin{itemize}\setlength\itemsep{0.09cm}
+        \item 总账、明细账、科目余额表和试算平衡表
+        \item 收入、应收、存货、采购与成本全量明细
+        \item 函证对象与独立地址来源、年末盘点安排
+        \item 前十大及年末前后异常交易支持资料
+      \end{itemize}
+      \vspace{0.20cm}
+      \tagbox{PwCOrange}{资料管理}
+      \tinybody 高/中/低优先级｜计划/实际日期｜未提供/已提供/待补充｜逾期标记｜责任部门与备注。
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \tagbox{PwCOrange}{新增完整范围}
+      \vspace{0.15cm}
+      \begin{itemize}\setlength\itemsep{0.08cm}
+        \item 应付与采购负债、固定资产、在建工程、长摊
+        \item 租赁、无形资产、职工薪酬、税费与所得税
+        \item 销售/管理/研发/财务费用
+        \item 现金流量表、附注、承诺与或有事项
+      \end{itemize}
+      \vspace{0.20cm}
+      \begin{beamercolorbox}[wd=\linewidth,sep=0.20cm]{normal text}
+        \bfseries\color{PwCInk}资源原则：\mdseries 一般项目仍执行基础分析、抽凭、截止、重算和列报检查；“未列高风险”不等于“不审”。
+      \end{beamercolorbox}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% 11 计划与分工
+\begin{frame}{审计计划与分工：四周关键路径和独立复核}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.61\textwidth}
+      \includegraphics[width=\linewidth,height=3.90cm,keepaspectratio]{09_audit_plan_gantt.png}
+      \tinybody 模拟时间轴：2022-12-27 至 2023-01-27；工期统一使用 \texttt{NETWORKDAYS} 工作日口径。
+    \end{column}
+    \begin{column}{0.36\textwidth}
+      \tinybody
+      \infobox{项目合伙人/质量复核人}{独立复核重要性、持续经营、舞弊、关联方、期后事项和最终结论。}
+      \vspace{0.08cm}
+      \infobox{项目经理}{统筹计划与重大判断；不能复核自己执行的事项。}
+      \vspace{0.08cm}
+      \infobox{高级审计员 A / B}{分别主责收入应收、存货成本；高风险由高级人员执行或指导。}
+      \vspace{0.08cm}
+      \infobox{审计员 A / B}{负责基础项目、数据分析、样本准备和底稿归档。}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% 12 重要性与抽样
+\begin{frame}{重要性与抽样：展示方法，不编造金额}
+  \tinybody
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \tagbox{PwCOrange}{重要性决策流程}
+      \vspace{0.16cm}
+      \begin{enumerate}\setlength\itemsep{0.10cm}
+        \item 在税前利润、营业收入或总资产中选择稳定且相关的基准
+        \item 取得经核对的 TB 金额，并记录比例判断依据
+        \item 计算整体重要性、实际执行重要性和明显微小临界值
+        \item 结合关联方、舞弊、监管等定性因素复核
+      \end{enumerate}
+      \vspace{0.16cm}
+      \begin{beamercolorbox}[wd=\linewidth,sep=0.18cm]{normal text}
+        \color{PwCRed}\bfseries 当前状态：\color{PwCInk}\mdseries 待项目经理确定；金额字段保留待定，公式和审批链已建立。
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \tagbox{PwCRed}{风险驱动选样}
+      \vspace{0.16cm}
+      \begin{tabular}{@{}>{\bfseries}p{0.20\linewidth} p{0.66\linewidth}@{}}
+        收入 & 大额全查 + 年末/手工/异常定向 + 其余随机/系统抽样\\[0.18cm]
+        应收 & 重大异常全选 + 其余按余额、账龄分层函证\\[0.18cm]
+        存货 & 重大库位/品类 + 呆滞异常 + 其余随机双向抽盘\\[0.18cm]
+        一般项目 & 大额异常与期末样本 + 其余基础随机抽凭\\
+      \end{tabular}
+      \vspace{0.20cm}
+      \tinybody 样本量依据：执行重要性、总体规模、控制依赖、风险等级和预期偏差；取得完整总体后再计算。
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% 13 执行问题与控制
+\begin{frame}{执行问题与解决方案：控制结论决定程序强度}
+  \tinybody
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \tagbox{PwCOrange}{控制了解矩阵}
+      \vspace{0.14cm}
+      覆盖销售收款、采购付款、生产存货、资金、财务结账、主数据与系统权限。\par
+      \vspace{0.18cm}
+      \begin{beamercolorbox}[wd=\linewidth,sep=0.20cm]{normal text}
+        \bfseries 暂定策略：\mdseries 不预设控制可依赖。先做穿行与设计评价；若控制无效或 IT 一般控制不足，则扩大抽凭、函证、截止、重算和分录测试。
+      \end{beamercolorbox}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \tagbox{PwCRed}{四类高频阻碍}
+      \vspace{0.14cm}
+      \begin{tabular}{@{}>{\bfseries}p{0.27\linewidth} p{0.62\linewidth}@{}}
+        资料迟交 & 每日台账；量化关键路径影响；分级升级\\[0.16cm]
+        函证不回 & 二次函证；核实地址；充分替代程序\\[0.16cm]
+        盘点差异 & 查明原因；扩大抽盘；追踪调整和截止\\[0.16cm]
+        财务人手少 & 单一联系人；集中问题；并行处理与预约\\
+      \end{tabular}
+      \vspace{0.18cm}
+      \tinybody 案例演练仅预设应对机制，不表示这些问题已经实际发生。
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% 14 结论
+\begin{frame}{审计策略结论：外部证据优先，风险分层覆盖}
+  \tinybody
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{tikzpicture}
+        \node[anchor=west,font=\fontsize{25}{28}\selectfont\bfseries,text=PwCOrange] at (0,0) {01};
+        \node[anchor=west,font=\fontsize{19}{22}\selectfont\bfseries] at (1.15,0) {收入与外销};
+        \node[anchor=west,text width=5.4cm,font=\fontsize{11}{13}\selectfont,text=PwCGrey] at (1.15,-0.58) {真实性、截止、条款与物流证据链};
+        \draw[PwCLight,line width=1.2pt] (0,-1.10)--(6.5,-1.10);
+        \node[anchor=west,font=\fontsize{25}{28}\selectfont\bfseries,text=PwCOrange] at (0,-1.65) {02};
+        \node[anchor=west,font=\fontsize{19}{22}\selectfont\bfseries] at (1.15,-1.65) {应收账款};
+        \node[anchor=west,text width=5.4cm,font=\fontsize{11}{13}\selectfont,text=PwCGrey] at (1.15,-2.23) {函证、期后回款、账龄与坏账模型};
+        \draw[PwCLight,line width=1.2pt] (0,-2.75)--(6.5,-2.75);
+        \node[anchor=west,font=\fontsize{25}{28}\selectfont\bfseries,text=PwCOrange] at (0,-3.30) {03};
+        \node[anchor=west,font=\fontsize{19}{22}\selectfont\bfseries] at (1.15,-3.30) {存货与成本};
+        \node[anchor=west,text width=5.4cm,font=\fontsize{11}{13}\selectfont,text=PwCGrey] at (1.15,-3.88) {监盘、权属、成本重算、跌价与截止};
+      \end{tikzpicture}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \infobox{治理}{项目合伙人/质量复核人独立复核重大判断；自我复核冲突降为 0。}
+      \vspace{0.12cm}
+      \infobox{完整范围}{一般报表项目执行基础程序；新增 26 项资料需求及 10 项基础程序。}
+      \vspace{0.12cm}
+      \infobox{可追溯性}{风险六维明细、重要性公式、工作日工期、资料状态和复核状态均进入 Excel。}
+      \vspace{0.12cm}
+      \infobox[PwCRed]{边界}{风险不是错报，程序不是证据，计划不是审计意见。}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% 15 Q&A
+\begin{frame}[plain]
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[white] (current page.south west) rectangle (current page.north east);
+    \fill[PwCLight] ($(current page.north east)+(-4.0cm,0)$) rectangle (current page.south east);
+    \fill[PwCOrange] ($(current page.north east)+(-3.2cm,-1.25cm)$) -- ++(2.0cm,0) -- ++(-0.95cm,-1.25cm) -- cycle;
+    \fill[PwCRed] ($(current page.north east)+(-1.2cm,-1.25cm)$) -- ++(0.85cm,0) -- ++(0,-1.25cm) -- cycle;
+  \end{tikzpicture}
+  \vspace{0.55cm}
+  {\fontsize{42}{46}\selectfont\bfseries\color{PwCInk}Q\&A}\par
+  \vspace{0.34cm}
+  {\fontsize{22}{27}\selectfont\bfseries\color{PwCInk}回答时先区分事实、计算、风险与结论}\par
+  \vspace{0.48cm}
+  \metriccard{1.22\%}{收入增速｜放缓不等于错报}\hfill
+  \metriccard[PwCRed]{34.35\%}{应收/收入｜需外部证据}\hfill
+  \metriccard{21.38\%}{主营毛利率｜异常信号}\hfill
+  \metriccard[PwCDarkRed]{23.61\%}{外销占比｜时点更复杂}
+  \vfill
+  {\fontsize{14}{17}\selectfont\bfseries\color{PwCInk}完整现场问答见《导师问答手册.md》}\par
+  \vspace{0.18cm}
+  {\sourcefont\color{PwCGrey}本汇报为案例计划阶段材料，不构成真实审计意见。}
+\end{frame}
+
+\end{document}
