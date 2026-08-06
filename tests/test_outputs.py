@@ -51,7 +51,7 @@ def test_v4_workbook_sheet_names_and_freeze_panes():
 def test_single_latex_source_pdf_layout_and_forbidden_text():
     tex = REPORT_TEX.read_text(encoding="utf-8")
     assert tex.count(r"\begin{frame}") == 15
-    for macro in [r"\newcommand{\bodyfont}{\fontsize{10.8}{13.2}", r"\newcommand{\smallbody}{\fontsize{9.8}{12.0}", r"\newcommand{\tinybody}{\fontsize{8.5}{10.4}", r"\newcommand{\sourcefont}{\fontsize{7.0}{8.3}"]:
+    for macro in [r"\newcommand{\bodyfont}{\fontsize{9.5}{11.6}", r"\newcommand{\smallbody}{\fontsize{8.5}{10.3}", r"\newcommand{\tinybody}{\fontsize{7.4}{9.0}", r"\newcommand{\sourcefont}{\fontsize{5.9}{7.0}"]:
         assert macro in tex
     assert tex.count("assets/derived/PwC_logo_cropped.png") == 2
     assert "08_audit_risk_ranking.png" in tex
